@@ -1,1 +1,55 @@
+<<<<<<< Updated upstream
 <p>espectaculos works!</p>
+=======
+<div class="main-container">
+  <div class="header">
+    <h1>🎟️ esientradas</h1>
+    <button class="btn-primary" (click)="getEscenarios()">Cargar Escenarios</button>
+  </div>
+
+  <div class="grid-escenarios">
+    <div class="card" *ngFor="let escenario of escenarios" [class.active]="escenarioAbiertoId === escenario.id">
+      <div class="card-header" (click)="toggleEscenario(escenario)">
+        <div class="info">
+          <h3>{{escenario.nombre}}</h3>
+          <p>{{escenario.descripcion}}</p>
+        </div>
+        <span class="icon">{{ escenarioAbiertoId === escenario.id ? '−' : '+' }}</span>
+      </div>
+
+      <div class="card-content" *ngIf="escenarioAbiertoId === escenario.id">
+        <h4>Próximos Espectáculos</h4>
+        <ul class="event-list">
+          <li *ngFor="let espectaculo of escenario.espectaculos">
+            <div class="espectaculo-row">
+              <div class="artista-info">
+                <span class="artista">{{espectaculo.artista}}</span>
+                <span class="fecha">{{espectaculo.fecha | date:'dd/MM/yyyy HH:mm'}}</span>
+              </div>
+              
+              <div class="stats-group">
+                <div class="stat-item" title="Libres">
+                  <span class="stat-label">L</span>
+                  <span class="stat-value">{{espectaculo.datosEntradas?.libres ?? 0}}</span>
+                </div>
+                <div class="stat-item" title="Vendidas">
+                  <span class="stat-label">V</span>
+                  <span class="stat-value">{{espectaculo.datosEntradas?.vendidas ?? 0}}</span>
+                </div>
+                <div class="stat-item" title="Reservadas">
+                  <span class="stat-label">R</span>
+                  <span class="stat-value">{{espectaculo.datosEntradas?.reservadas ?? 0}}</span>
+                </div>
+                <div class="stat-total" title="Total">
+                  <span class="stat-value">{{espectaculo.datosEntradas?.totales ?? 0}}</span>
+                </div>
+              </div>
+            </div>
+          </li>
+        </ul>
+        <p *ngIf="escenario.espectaculos?.length === 0" class="no-data">No hay eventos programados.</p>
+      </div>
+    </div>
+  </div>
+</div>
+>>>>>>> Stashed changes
