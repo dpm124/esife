@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';;
+import { Component, ChangeDetectorRef } from '@angular/core';;
 import { CommonModule } from '@angular/common';
-import { EspectaculosService } from '../espectaculos.service';
+import { EspectaculosService } from './espectaculos.service';
+import { Router } from '@angular/router'; 
 
 
 @Component({
@@ -13,15 +14,15 @@ export class EspectaculosComponent {
 
   escenarios: any[] = []
   escenarioAbiertoId: number | null = null // para almacenar el ID del escenario seleccionado
-  router: any;
 
-  constructor(private espectaculosService: EspectaculosService) {}
+  constructor(private espectaculosService: EspectaculosService, private router: Router, private changeDetectorRef: ChangeDetectorRef) {}
 
   getNumeroEntradas(espectaculo : any){
     this.espectaculosService.getNumeroEntradas(espectaculo).subscribe({
       next: (response: any) => {
         espectaculo.entradasTotales = response;
         this.getEntradasLibres(espectaculo);
+        this.changeDetectorRef.detectChanges(); // Forzamos la detección de cambios para actualizar la vista
       },
       error: (error : any) => {
         console.error("Error al obtener las entradas", error);
@@ -32,8 +33,9 @@ export class EspectaculosComponent {
   getNumeroEntradasDto(espectaculo : any){
     this.espectaculosService.getNumeroEntradasDto(espectaculo).subscribe({
       next: (response: any) => {
-        espectaculo.entradasTotales = response;
+        espectaculo.datosEntradas = response;
         this.getEntradasLibres(espectaculo);
+        this.changeDetectorRef.detectChanges(); // Forzamos la detección de cambios para actualizar la vista con los datos de entradas cargados
       },
       error: (error : any) => {
         console.error("Error al obtener las entradas", error);
@@ -46,6 +48,7 @@ export class EspectaculosComponent {
     this.espectaculosService.getEntradasLibres(espectaculo).subscribe({
       next: (response: any) => {
         espectaculo.entradasLibres = response;
+        this.changeDetectorRef.detectChanges(); // Forzamos la detección de cambios para actualizar la vista
       },
       error: (error: any) => {
         console.error("Error al obtener las entradas libres", error);
@@ -54,21 +57,28 @@ export class EspectaculosComponent {
   }
 
   getEspectaculos(escenario: any) { // Usamos el ID del objeto escenario que llega desde el HTML
-    this.espectaculosService.getEspectaculos(escenario).subscribe( // Suscribimos al observable para obtener los datos
-      (response: any[]) => {
-        this.escenarios = response
+    this.espectaculosService.getEspectaculos(escenario).subscribe({ // Suscribimos al observable para obtener los datos
+      next: (response: any[]) => {
+        escenario.espectaculos = response; // Guardamos los espectáculos en el objeto escenario para que estén disponibles en el HTML
+        escenario.espectaculos.forEach((espectaculo: any) => { // Iteramos sobre cada espectáculo del escenario
+          this.getNumeroEntradasDto(espectaculo); // Llamamos a getNumeroEntradas para cada espectáculo para cargar sus estadísticas al inicio, así no tenemos que esperar a que el usuario haga clic en cada espectáculo para ver los datos
+        });
+        this.changeDetectorRef.detectChanges(); // Forzamos la detección de cambios para actualizar la vista con los espectáculos y estadísticas cargados
       },
-      (error: any) => {
+      error: (error: any) => {
         console.error("Error al obtener los escenarios", error);
       }
-    );
+    });
   }
 
   getEscenarios() {
     this.espectaculosService.getEscenarios().subscribe({
       next: (response) => {
-        this.escenarios = response;
-        this.escenarioAbiertoId = null; // Reiniciamos el escenario seleccionado al obtener nuevos escenarios
+        this.escenarios = response; // Guardamos los escenarios en la variable del componente
+        this.escenarios.forEach((escenario: any) => { // Iteramos sobre cada escenario
+          this.getEspectaculos(escenario); // Llamamos a getEspectaculos para cada escenario para cargar sus espectáculos y estadísticas al inicio, así no tenemos que esperar a que el usuario haga clic en cada escenario para ver los datos
+        });
+        this.changeDetectorRef.detectChanges(); // Forzamos la detección de cambios para actualizar la vista con los escenarios y espectáculos cargados
       },
       error: (error) => {
         console.error("Error al obtener escenarios", error);
@@ -76,30 +86,12 @@ export class EspectaculosComponent {
     });
   }
 
-  toggleEscenario(escenario: any) {
-    if (this.escenarioAbiertoId === escenario.id) {
-      // Si el mismo escenario se vuelve a seleccionar, lo deseleccionamos
-      this.escenarioAbiertoId = null;
-      return;
-    }
-
-    if (!escenario.espectaculos || escenario.espectaculos.length === 0) {
-      this.espectaculosService.getEspectaculos(escenario).subscribe({
-        next: (response) => {
-          escenario.espectaculos = response;
-          this.escenarioAbiertoId = escenario.id;
-          escenario.espectaculos.forEach((espectaculo: any) => this.getNumeroEntradas(espectaculo));
-        },
-        error: (error) => {
-          console.error("Error al obtener espectáculos del escenario", error);
-        }
-      });
-    } else {
-      this.escenarioAbiertoId = escenario.id;
-    }
-  }
-
   irAComprar(espectaculo: any) {
-    this.router.navigate(['/comprar']);
+    this.router.navigate(['/comprar'], {
+      queryParams: {
+        idEspectaculo: espectaculo.id,
+        artista: espectaculo.artista,
+      }
+    });
   }
 }
