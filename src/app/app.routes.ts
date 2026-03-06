@@ -1,6 +1,9 @@
 import { Routes } from '@angular/router';
 import { CompraComponent } from './compra/compra.component';
+import { EspectaculosComponent } from './espectaculos/espectaculos.component';
 
 export const routes: Routes = [
-    {path: "comprar", component: CompraComponent},
+    { path: '', component: EspectaculosComponent }, // Para que al abrir la web salga algo
+    { path: 'espectaculos', component: EspectaculosComponent },
+    { path: 'comprar', component: CompraComponent },
 ];
