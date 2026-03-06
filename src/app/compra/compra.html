@@ -1,1 +1,16 @@
-<p>compra works!</p>
+<div style="max-width: 800px; margin: 2rem auto; padding: 1rem; font-family: sans-serif;">
+  <h2>🎟️ Panel de Compra</h2>
+  
+  <div style="background: white; border: 1px solid #ccc; padding: 20px; border-radius: 8px;">
+    <h3>Estás comprando entradas para: <span style="color: #0052cc;">{{ artista }}</span></h3>
+    <p>ID del Espectáculo en Base de Datos: {{ idEspectaculo }}</p>
+    
+    <hr style="margin: 20px 0;">
+    
+    <p><em>(Aquí irá la lista de entradas sueltas con su botón de reservar)</em></p>
+    
+    <button (click)="volver()" style="background: #666; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin-top: 20px;">
+      Volver a la Cartelera
+    </button>
+  </div>
+</div>
