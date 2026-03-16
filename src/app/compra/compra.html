@@ -8,6 +8,18 @@
     <hr style="margin: 20px 0;">
     
     <p><em>(Aquí irá la lista de entradas sueltas con su botón de reservar)</em></p>
+
+    <div style="margin-top: 30px; padding: 15px; border: 1px dashed #0052cc; border-radius: 8px; background-color: #f0f7ff;">
+      <h4 style="margin-top: 0;">💳 Pago Seguro con Tarjeta</h4>
+      
+      <div id="card-element" style="padding: 10px; background: white; border: 1px solid #ced4da; border-radius: 4px;"></div>
+      
+      <div id="card-errors" role="alert" style="color: #d73a49; font-size: 0.85rem; margin-top: 10px;"></div>
+
+      <button (click)="pagar(15.50)" style="background: #28a745; color: white; border: none; padding: 12px 25px; border-radius: 4px; cursor: pointer; margin-top: 15px; font-weight: bold; width: 100%;">
+        Confirmar y Pagar
+      </button>
+    </div>
     
     <button (click)="volver()" style="background: #666; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin-top: 20px;">
       Volver a la Cartelera
