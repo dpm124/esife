@@ -28,4 +28,8 @@ export class EspectaculosService {
   getEntradasLibres(espectaculo: any) {
     return this.http.get<any>(`http://localhost:8080/busqueda/getEntradasLibres/${espectaculo.id}`);
   }
+
+  crearIntentoPago(precio: number) {
+    return this.http.post<any>('http://localhost:8080/pagos/intentoPago', { precio });
+  }
 }
