@@ -1,57 +1,42 @@
-<div class="main-container">
-  <div class="header">
-    <h1>🎟️ esientradas</h1>
-    <button class="btn-primary" (click)="getEscenarios()">Cargar Escenarios</button>
-  </div>
+<div class="page">
 
-  <div class="grid-escenarios">
-    <div class="card" *ngFor="let escenario of escenarios">
-      
-      <div class="card-header">
-        <div class="info">
-          <h3>{{escenario.nombre}}</h3>
-          <p>{{escenario.descripcion}}</p>
-        </div>
+  <nav class="navbar">
+    <span class="logo">🎟️ ESIentradas</span>
+  </nav>
+
+  <div class="hero">
+    <h1>Encuentra tu próximo espectáculo</h1>
+
+    <div class="filters">
+      <div class="search-bar">
+        <input type="text" [(ngModel)]="busqueda" placeholder="Buscar artista..." (keyup.enter)="buscarPorArtista()" />
+        <button class="btn-primary" (click)="buscarPorArtista()">Buscar</button>
       </div>
 
-      <div class="card-content">
-        <h4>Próximos Espectáculos</h4>
-        <ul class="event-list">
-          <li *ngFor="let espectaculo of escenario.espectaculos">
-            <div class="espectaculo-row">
-              <div class="artista-info">
-                <span class="artista">{{espectaculo.artista}}</span>
-                <span class="fecha">{{espectaculo.fecha | date:'dd/MM/yyyy HH:mm'}}</span>
-              </div>
-              
-              <div class="stats-group">
-                <div class="badge badge-disponible" title="Entradas disponibles">
-                  <span class="badge-label">Libres:</span>
-                  <span class="badge-value">{{espectaculo.datosEntradas?.libres ?? 0}}</span>
-                </div>
-
-                <div class="badge badge-vendida" title="Entradas compradas">
-                  <span class="badge-label">Vendidas:</span>
-                  <span class="badge-value">{{espectaculo.datosEntradas?.vendidas ?? 0}}</span>
-                </div>
-
-                <div class="badge badge-reservada" title="Entradas reservadas">
-                  <span class="badge-label">Reservadas:</span>
-                  <span class="badge-value">{{espectaculo.datosEntradas?.reservadas ?? 0}}</span>
-                </div>
-
-                <div class="stat-total" title="Aforo total del espectáculo">
-                  <span class="stat-value">{{espectaculo.datosEntradas?.totales ?? 0}}</span>
-                </div>
-
-                <button class="btn-primary" (click)="irAComprar(espectaculo)">Comprar</button>
-              </div>
-
-            </div>
-          </li>
-        </ul>
-        <p *ngIf="escenario.espectaculos?.length === 0" class="no-data">No hay eventos programados.</p>
+      <div class="escenario-filter">
+        <select [(ngModel)]="escenarioSeleccionado" (change)="buscarPorEscenario()">
+          <option [ngValue]="null">Todos los escenarios</option>
+          <option *ngFor="let esc of escenarios" [ngValue]="esc">{{ esc.nombre }}</option>
+        </select>
       </div>
     </div>
   </div>
+
+  <div class="content">
+    <div class="events-grid">
+      <div class="event-card" *ngFor="let esp of espectaculos" (click)="irAComprar(esp)">
+        <div class="event-card-body">
+          <h3>{{ esp.artista }}</h3>
+          <p class="escenario">📍 {{ esp.escenario }}</p>
+          <p class="fecha">📅 {{ esp.fecha | date:'dd/MM/yyyy HH:mm' }}</p>
+        </div>
+        <div class="event-card-footer">
+          <span class="precio">Entradas disponibles</span>
+          <button class="btn-primary small">Ver entradas →</button>
+        </div>
+      </div>
+    </div>
+    <p *ngIf="espectaculos.length === 0 && buscado" class="no-data">No se encontraron espectáculos.</p>
+  </div>
+
 </div>
