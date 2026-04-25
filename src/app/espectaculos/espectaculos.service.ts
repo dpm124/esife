@@ -8,28 +8,29 @@ export class EspectaculosService {
 
   constructor(private http: HttpClient) {}
 
-  getNumeroEntradasDto(espectaculo: any) {
-    return this.http.get<any>(`http://localhost:8080/busqueda/getNumeroEntradasDto/${espectaculo.id}`);
-  }
-  
   getEscenarios() {
     return this.http.get<any[]>('http://localhost:8080/busqueda/getEscenarios');
   }
 
   getEspectaculos(escenario: any) {
-    // Usamos el ID del objeto escenario que llega desde el HTML
     return this.http.get<any[]>(`http://localhost:8080/busqueda/getEspectaculos/${escenario.id}`);
   }
 
-  getNumeroEntradas(espectaculo: any) {
-    return this.http.get<any>(`http://localhost:8080/busqueda/getNumeroEntradas/${espectaculo.id}`);
+  buscarEspectaculos(artista: string) {
+    return this.http.get<any[]>(`http://localhost:8080/busqueda/getEspectaculos?artista=${artista}`);
   }
 
-  getEntradasLibres(espectaculo: any) {
-    return this.http.get<any>(`http://localhost:8080/busqueda/getEntradasLibres/${espectaculo.id}`);
+  // Devuelve la LISTA de entradas de un espectáculo (con id y precio)
+  getEntradas(espectaculoId: any) {
+    return this.http.get<any[]>(`http://localhost:8080/busqueda/getEntradas?espectaculoId=${espectaculoId}`);
   }
 
-  crearIntentoPago(precio: number) {
-    return this.http.post<any>('http://localhost:8080/pagos/intentoPago', { precio });
+  // Devuelve el número de entradas libres (un número, no una lista)
+  getEntradasLibres(espectaculoId: any) {
+    return this.http.get<number>(`http://localhost:8080/busqueda/getEntradasLibres/${espectaculoId}`);
+  }
+
+  reservarEntrada(entradaId: number) {
+    return this.http.put('http://localhost:8080/reservas/reservar?entradaId=' + entradaId, {}, { responseType: 'text' });
   }
 }
