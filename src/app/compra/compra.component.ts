@@ -1,72 +1,72 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { loadStripe } from '@stripe/stripe-js'; // Añadimos esto
 import { EspectaculosService } from '../espectaculos/espectaculos.service';
-import { Pagos } from './pagos';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 
 @Component({
   selector: 'app-compra',
+  imports: [CommonModule, FormsModule],
   templateUrl: './compra.html',
   styleUrl: './compra.css',
 })
+
 export class CompraComponent implements OnInit {
   idEspectaculo: string | null = null;
   artista: string | null = null;
-  stripe: any; // Para Stripe
-  card: any;   // Para el cuadro de la tarjeta
+  entradas: any[] = [];
+  tokenEntrada: string | null = null;
+  mensaje: string | null = null;
 
-  importe : number = 20.00;
-
-  // Añadimos el servicio al constructor para que 'pagar()' funcione
   constructor(
-    private service: Pagos,
-    private route: ActivatedRoute, 
+    private route: ActivatedRoute,
     private router: Router,
-    private espectaculosService: EspectaculosService 
+    private espectaculosService: EspectaculosService,
+    private cdr: ChangeDetectorRef
   ) {}
 
-  async ngOnInit() {
+  ngOnInit() {
     this.route.queryParams.subscribe(params => {
       this.idEspectaculo = params['idEspectaculo'];
       this.artista = params['artista'];
+      if (this.idEspectaculo) {
+        this.cargarEntradas();
+      }
     });
+  }
 
-    // ESTO ES LO QUE HACE QUE APAREZCA EL CUADRO
-    this.stripe = await loadStripe('pk_test_51T92mIK3cuk74EClzLWy8LJUvDJSRqhi6KcQ13Nqg5pRICG0MtXWISuyjv8Q8N70xej347QnCn0d1FM8KkF01A2D00hL4xCWHG');
-    const elements = this.stripe.elements();
-    this.card = elements.create('card');
-    this.card.mount('#card-element'); 
+  cargarEntradas() {
+    this.espectaculosService.getEntradas(this.idEspectaculo!).subscribe({
+      next: (response: any) => {
+        this.entradas = [...response];
+        this.cdr.detectChanges();
+      },
+      error: (error: any) => {
+        console.error('Error al cargar las entradas:', error);
+      }
+    });
+  }
+
+  reservar(entrada: any) {
+    this.espectaculosService.reservarEntrada(entrada.id).subscribe({
+      next: (response: any) => {
+        this.tokenEntrada = response;
+        this.mensaje = `Entrada reservada. Precio: ${(entrada.precio / 100).toFixed(2)} €. Ahora inicia sesión para completar la compra.`;
+        this.cargarEntradas();
+      },
+      error: (error: any) => {
+        this.mensaje = error.error?.message || 'Error al reservar la entrada.';
+        console.error(error);
+      }
+    });
   }
 
   volver() {
     this.router.navigate(['/espectaculos']);
   }
 
-  irAlPago() {
-    let infoPago = {
-      centimos : Math.floor(this.importe.valueOf() * 100), // Stripe trabaja con centavos
-    };
-    this.service.prepararPago(infoPago).subscribe({
-      next: (response) => {
-        console.log('Respuesta del backend', response)
-      },
-      error: (error) => {
-        console.log('Error:', error)
-      }
-    });
+  completarCompra() {
+    this.router.navigate(['/login'], { queryParams: { tokenEntrada: this.tokenEntrada } });
   }
-
-  showForm() { 
-    let elements = this.stripe.elements() 
-    let style = { 
-      base: { 
-      color: "#32325d", fontFamily: 'Arial, sans-serif', 
-      fontSmoothing: "antialiased", fontSize: "16px", 
-      "::placeholder": { 
-      color: "#32325d" 
-      } 
-    },
-  }
-}
 }
