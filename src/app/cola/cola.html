@@ -1,0 +1,32 @@
+<div class="page">
+
+  <nav class="navbar">
+    <span class="logo">🎟️ ESIentradas</span>
+    <button class="btn-secondary" (click)="salir()">← Volver</button>
+  </nav>
+
+  <div class="content">
+
+    <div class="login-card">
+      <h1>{{ artista }}</h1>
+      <p>Estás en la cola de espera</p>
+
+      <div *ngIf="mensaje" class="mensaje" [class.exito]="tieneTurno">
+        {{ mensaje }}
+      </div>
+
+      <div *ngIf="!tieneTurno && posicion !== null" class="posicion">
+        <p>Personas delante de ti: <strong>{{ posicion }}</strong></p>
+        <p class="aviso">Esta página se actualiza automáticamente cada 10 segundos.</p>
+      </div>
+
+      <div *ngIf="tieneTurno" class="boton-compra">
+        <button class="btn-primary" (click)="comprar()">Comprar entrada →</button>
+      </div>
+
+      <button class="btn-secondary" (click)="salir()">Abandonar cola</button>
+    </div>
+
+  </div>
+
+</div>
