@@ -33,4 +33,30 @@ export class EspectaculosService {
   reservarEntrada(entradaId: number) {
     return this.http.put('http://localhost:8080/reservas/reservar?entradaId=' + entradaId, {}, { responseType: 'text' });
   }
+
+  unirseACola(espectaculoId: number, tokenUsuario: string) {
+    return this.http.post('http://localhost:8080/cola/unirse', {}, {
+      params: { espectaculoId, tokenUsuario },
+      responseType: 'text'
+    });
+  }
+
+  consultarPosicionCola(espectaculoId: number, tokenUsuario: string) {
+    return this.http.post('http://localhost:8080/cola/posicion', {}, {
+      params: { espectaculoId, tokenUsuario },
+      responseType: 'text'
+    });
+  } 
+
+  tieneTurno(espectaculoId: number, tokenUsuario: string) {
+    return this.http.get<boolean>('http://localhost:8080/cola/turno', { 
+      params: { espectaculoId, tokenUsuario } });
+  }
+
+  salirDeCola(espectaculoId: number, tokenUsuario: string) {
+    return this.http.post('http://localhost:8080/cola/salir', {}, {
+      params: { espectaculoId, tokenUsuario },
+      responseType: 'text'
+    });
+  }
 }

@@ -86,4 +86,13 @@ export class EspectaculosComponent implements OnInit {
       }
     });
   }
+
+  irACola(espectaculo: any) {
+    this.router.navigate(['/login'], {
+      queryParams: {
+        espectaculoId: espectaculo.id,
+        artista: espectaculo.artista
+      }
+    });
+  }
 }
