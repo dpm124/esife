@@ -126,3 +126,32 @@ input:focus {
   color: #4ade80;
   border-color: #14532d;
 }
+
+.btn-registro {
+  width: 100%;
+  padding: 0.6rem;
+  margin-top: 0.8rem;
+  background: transparent;
+  border: 1px solid #333;
+  color: #888;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.btn-registro:hover {
+  color: #7c3aed;
+  border-color: #7c3aed;
+}
+
+.btn-link {
+  background: none;
+  border: none;
+  color: #7c3aed;
+  cursor: pointer;
+  font-size: inherit;
+  padding: 0;
+  margin-left: 0.3rem;
+  text-decoration: underline;
+}

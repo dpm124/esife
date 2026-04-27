@@ -8,12 +8,18 @@
   <div class="content">
 
     <div class="login-card">
-      <h1>Iniciar sesión</h1>
-      <p>Identifícate para completar tu compra</p>
 
-      <div *ngIf="mensaje" class="mensaje" [class.exito]="exito">{{ mensaje }}</div>
+      <h1>{{ modoRegistro ? 'Crear cuenta' : 'Iniciar sesión' }}</h1>
+      <p>{{ modoRegistro ? 'Regístrate para completar tu compra' : 'Identifícate para completar tu compra' }}</p>
 
-      <form *ngIf="!exito" (ngSubmit)="login()">
+      <div *ngIf="mensaje" class="mensaje" [class.exito]="exito">
+        {{ mensaje }}
+        <span *ngIf="!modoRegistro && mensaje && mensaje.includes('¿No tienes cuenta?')">
+          <button class="btn-link" (click)="activarModoRegistro()">Regístrate aquí</button>
+        </span>
+      </div>
+
+      <form *ngIf="!exito && !modoRegistro" (ngSubmit)="login()">
         <div class="form-group">
           <label for="name">Usuario</label>
           <input id="name" type="text" [(ngModel)]="name" name="name" placeholder="Tu usuario" required />
@@ -23,9 +29,24 @@
           <input id="pwd" type="password" [(ngModel)]="pwd" name="pwd" placeholder="Tu contraseña" required />
         </div>
         <button type="submit" class="btn-primary" [disabled]="!name || !pwd">Completar compra</button>
+        <button type="button" class="btn-registro" (click)="activarModoRegistro()">¿No tienes cuenta? Regístrate</button>
+      </form>
+
+      <form *ngIf="!exito && modoRegistro" (ngSubmit)="registrar()">
+        <div class="form-group">
+          <label for="nameReg">Usuario</label>
+          <input id="nameReg" type="text" [(ngModel)]="name" name="name" placeholder="Elige un usuario" required />
+        </div>
+        <div class="form-group">
+          <label for="pwdReg">Contraseña</label>
+          <input id="pwdReg" type="password" [(ngModel)]="pwd" name="pwd" placeholder="Elige una contraseña" required />
+        </div>
+        <button type="submit" class="btn-primary" [disabled]="!name || !pwd">Crear cuenta</button>
+        <button type="button" class="btn-registro" (click)="modoRegistro = false; mensaje = null">¿Ya tienes cuenta? Inicia sesión</button>
       </form>
 
       <button *ngIf="exito" class="btn-secondary" (click)="volver()">Ver más espectáculos</button>
+
     </div>
 
   </div>
