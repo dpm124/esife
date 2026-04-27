@@ -12,13 +12,12 @@ import { FormsModule } from '@angular/forms';
 })
 export class LoginComponent implements OnInit {
   
-  tokenEntrada: string | null = null;
-  espectaculoId: string | null = null;
-  artista: string | null = null;
+  tokenEntrada: string | null = null
   name: string = '';
   pwd: string = '';
   mensaje: string | null = null;
   exito: boolean = false;
+  modoRegistro: boolean = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -29,9 +28,7 @@ export class LoginComponent implements OnInit {
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
-      this.tokenEntrada = params['tokenEntrada'] || null;
-      this.espectaculoId = params['espectaculoId'] || null;
-      this.artista = params['artista'] || null;
+      this.tokenEntrada = params['tokenEntrada'] || null
     });
   }
 
@@ -39,56 +36,51 @@ login() {
     this.http.post('http://localhost:8081/users/login', { name: this.name, pwd: this.pwd }, { responseType: 'text' })
       .subscribe({
         next: (tokenUsuario: string) => {
-          if (this.espectaculoId) {
-            // Venimos de la cola
-            this.http.post('http://localhost:8080/cola/unirse', {}, {
-              params: { espectaculoId: this.espectaculoId, tokenUsuario },
-              responseType: 'text'
-            }).subscribe({
-              next: () => {
-                this.router.navigate(['/cola'], {
-                  queryParams: {
-                    espectaculoId: this.espectaculoId,
-                    artista: this.artista,
-                    tokenUsuario: tokenUsuario
-                  }
-                });
-              },
-              error: (error: any) => {
-                if (error.error?.includes('ya esta en la cola')) {
-                  this.router.navigate(['/cola'], {
-                    queryParams: {
-                      espectaculoId: this.espectaculoId,
-                      artista: this.artista,
-                      tokenUsuario: tokenUsuario
-                    }
-                  });
-                } else {
-                  this.mensaje = error.error || 'Error al unirse a la cola.';
-                }
-              }
-            });
-          } else {
-            // Venimos de una compra normal
-            this.http.get('http://localhost:8080/reservas/comprar', {
-              params: { tokenEntrada: this.tokenEntrada!, tokenUsuario },
-              responseType: 'text'
-            }).subscribe({
-              next: () => {
-                this.exito = true;
-                this.mensaje = '¡Compra completada con éxito! Tu entrada está confirmada.';
-                this.cdr.detectChanges();
-              },
-              error: (error: any) => {
-                this.mensaje = error.error || 'Error al completar la compra.';
-              }
-            });
-          }
+          localStorage.setItem('tokenUsuario', tokenUsuario);
+          this.http.get('http://localhost:8080/reservas/comprar', {
+            params: { tokenEntrada: this.tokenEntrada!, tokenUsuario },
+            responseType: 'text'
+          }).subscribe({
+            next: () => {
+              this.exito = true;
+              this.mensaje = '¡Compra completada con éxito! Tu entrada está confirmada.';
+              this.cdr.detectChanges();
+            },
+            error: (error: any) => {
+              this.mensaje = error.error || 'Error al completar la compra.';
+              this.cdr.detectChanges();
+            }
+          });
         },
-        error: (error: any) => {
-          this.mensaje = error.error || 'Usuario o contraseña incorrectos.';
+        error: () => {
+          this.mensaje = 'Usuario o contraseña incorrectos.';
+          this.cdr.detectChanges();
         }
       });
+  }
+
+  registrar() {
+    this.http.post('http://localhost:8081/users/registrar', { name: this.name, pwd: this.pwd }, { responseType: 'text' })
+      .subscribe({
+        next: () => {
+          this.mensaje = 'Registro exitoso. Ahora puedes iniciar sesión.';
+          this.modoRegistro = false;
+          this.pwd = '';
+          this.cdr.detectChanges();
+          this.exito = true;
+        },
+        error: (error: any) => {
+          this.mensaje = error.status === 409 ? 'El usuario ya existe.' : 'Error al registrar el usuario.';
+          this.modoRegistro = false;
+          this.cdr.detectChanges();
+        }
+      });
+  }
+  
+  activarModoRegistro() {
+    this.modoRegistro = true;
+    this.mensaje = null;
+    this.cdr.detectChanges();
   }
 
   volver() {
