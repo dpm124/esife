@@ -88,7 +88,7 @@ export class EspectaculosComponent implements OnInit {
   }
 
   irACola(espectaculo: any) {
-    this.router.navigate(['/login'], {
+    this.router.navigate(['/cola'], {
       queryParams: {
         espectaculoId: espectaculo.id,
         artista: espectaculo.artista
