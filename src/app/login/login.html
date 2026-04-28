@@ -30,6 +30,7 @@
         </div>
         <button type="submit" class="btn-primary" [disabled]="!name || !pwd">Completar compra</button>
         <button type="button" class="btn-registro" (click)="activarModoRegistro()">¿No tienes cuenta? Regístrate</button>
+        <button type="button" class="btn-link" (click)="irARecuperar()">¿Olvidaste tu contraseña?</button>  <!-- AÑADE ESTO -->
       </form>
 
       <form *ngIf="!exito && modoRegistro" (ngSubmit)="registrar()">

@@ -90,4 +90,8 @@ export class LoginComponent implements OnInit {
   volver() {
     this.router.navigate(['/espectaculos']);
   }
+
+  irARecuperar() {
+    this.router.navigate(['/recuperar']);
+  }
 }
