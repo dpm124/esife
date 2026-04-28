@@ -1,0 +1,16 @@
+<div>
+  <h2>Recuperar contraseña</h2>
+
+  <div *ngIf="!enviado">
+    <p>Introduce tu email y te enviaremos un enlace para restablecer tu contraseña.</p>
+    <input type="email" [(ngModel)]="email" placeholder="Tu email" />
+    <br/>
+    <button (click)="enviar()">Enviar</button>
+    <button (click)="volver()">Volver al login</button>
+  </div>
+
+  <div *ngIf="enviado">
+    <p>{{ mensaje }}</p>
+    <button (click)="volver()">Volver al login</button>
+  </div>
+</div>
