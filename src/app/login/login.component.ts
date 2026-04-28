@@ -32,7 +32,7 @@ export class LoginComponent implements OnInit {
     });
   }
 
-login() {
+  login() {
     this.http.post('http://localhost:8081/users/login', { name: this.name, pwd: this.pwd }, { responseType: 'text' })
       .subscribe({
         next: (tokenUsuario: string) => {
@@ -52,8 +52,12 @@ login() {
             }
           });
         },
-        error: () => {
-          this.mensaje = 'Usuario o contraseña incorrectos.';
+        error: (error: any) => {
+          if (error.status === 404) {
+            this.mensaje = 'El usuario no existe. Por favor, regístrate primero.';
+          } else {
+            this.mensaje = 'Usuario o contraseña incorrectos.';
+          }
           this.cdr.detectChanges();
         }
       });
