@@ -16,7 +16,7 @@ export class CompraComponent implements OnInit {
   idEspectaculo: string | null = null;
   artista: string | null = null;
   entradas: any[] = [];
-  tokenEntrada: string | null = null;
+  tokenReservaEntrada: string | null = null;
   mensaje: string | null = null;
 
   constructor(
@@ -50,14 +50,15 @@ export class CompraComponent implements OnInit {
 
   reservar(entrada: any) {
     this.espectaculosService.reservarEntrada(entrada.id).subscribe({
-      next: (response: any) => {
-        this.tokenEntrada = response;
-        this.mensaje = `Entrada reservada. Precio: ${(entrada.precio / 100).toFixed(2)} €. Ahora inicia sesión para completar la compra.`;
-        this.cargarEntradas();
+      next: (tokenReservaEntrada: string) => {  
+        this.tokenReservaEntrada = tokenReservaEntrada; 
+        this.mensaje = `✓ Entrada #${entrada.id} reservada por 10 minutos. 
+                        Precio: ${(entrada.precio / 100).toFixed(2)} €
+                        Completa tu compra para confirmar.`;
+        this.cargarEntradas();  // Actualiza lista
       },
       error: (error: any) => {
         this.mensaje = error.error?.message || 'Error al reservar la entrada.';
-        console.error(error);
       }
     });
   }
@@ -67,6 +68,12 @@ export class CompraComponent implements OnInit {
   }
 
   completarCompra() {
-    this.router.navigate(['/login'], { queryParams: { tokenEntrada: this.tokenEntrada } });
-  }
+    // ✓ Va a login pasando el tokenReservaEntrada correcto
+    this.router.navigate(['/login'], {
+      queryParams: {
+        tokenReservaEntrada: this.tokenReservaEntrada,
+        idEspectaculo: this.idEspectaculo,
+        artista: this.artista
+    }
+  });
 }
