@@ -12,12 +12,14 @@ import { FormsModule } from '@angular/forms';
 })
 export class LoginComponent implements OnInit {
   
-  tokenEntrada: string | null = null
+  tokenReservaEntrada: string | null = null
   name: string = '';
   pwd: string = '';
   mensaje: string | null = null;
   exito: boolean = false;
   modoRegistro: boolean = false;
+  idEspectaculo: string | null = null;
+  artista: string | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -28,7 +30,9 @@ export class LoginComponent implements OnInit {
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
-      this.tokenReservaEntrada = params['tokenEntrada'] || null
+      this.tokenReservaEntrada = params['tokenReservaEntrada'] || null;
+      this.idEspectaculo = params['idEspectaculo'] || null;
+      this.artista = params['artista'] || null;
     });
   }
 
@@ -39,7 +43,7 @@ export class LoginComponent implements OnInit {
           localStorage.setItem('tokenUsuario', tokenUsuario);
       localStorage.setItem('tokenReservaEntrada', this.tokenReservaEntrada!);
       // ✓ CAMBIO: Redirige a componente de pago, NO hace compra aquí
-      this.router.navigate(['/pago'], {
+      this.router.navigate(['/pago'], { 
         queryParams: {
           tokenReservaEntrada: this.tokenReservaEntrada,
           idEspectaculo: this.idEspectaculo,

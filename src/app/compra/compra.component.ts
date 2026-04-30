@@ -76,4 +76,5 @@ export class CompraComponent implements OnInit {
         artista: this.artista
     }
   });
+  }
 }
