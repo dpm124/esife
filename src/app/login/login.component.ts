@@ -28,7 +28,7 @@ export class LoginComponent implements OnInit {
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
-      this.tokenEntrada = params['tokenEntrada'] || null
+      this.tokenReservaEntrada = params['tokenEntrada'] || null
     });
   }
 
@@ -37,31 +37,20 @@ export class LoginComponent implements OnInit {
       .subscribe({
         next: (tokenUsuario: string) => {
           localStorage.setItem('tokenUsuario', tokenUsuario);
-          this.http.get('http://localhost:8080/reservas/comprar', {
-            params: { tokenEntrada: this.tokenEntrada!, tokenUsuario },
-            responseType: 'text'
-          }).subscribe({
-            next: () => {
-              this.exito = true;
-              this.mensaje = '¡Compra completada con éxito! Tu entrada está confirmada.';
-              this.cdr.detectChanges();
-            },
-            error: (error: any) => {
-              this.mensaje = error.error || 'Error al completar la compra.';
-              this.cdr.detectChanges();
-            }
-          });
-        },
-        error: (error: any) => {
-          if (error.status === 404) {
-            this.mensaje = 'El usuario no existe. Por favor, regístrate primero.';
-          } else {
-            this.mensaje = 'Usuario o contraseña incorrectos.';
-          }
-          this.cdr.detectChanges();
+      localStorage.setItem('tokenReservaEntrada', this.tokenReservaEntrada!);
+      // ✓ CAMBIO: Redirige a componente de pago, NO hace compra aquí
+      this.router.navigate(['/pago'], {
+        queryParams: {
+          tokenReservaEntrada: this.tokenReservaEntrada,
+          idEspectaculo: this.idEspectaculo,
+          artista: this.artista
         }
       });
-  }
+      this.exito = true;
+      this.mensaje = '✓ Autenticación exitosa. Redirigiendo al pago...';
+    }
+  });
+}
 
   registrar() {
     this.http.post('http://localhost:8081/users/registrar', { name: this.name, pwd: this.pwd }, { responseType: 'text' })
