@@ -1,1 +1,47 @@
-<p>pago works!</p>
+<div class="pago-wrapper">
+  <div class="pago-card">
+    <h2>Finalizar Compra</h2>
+    <p class="subtitulo" *ngIf="artista">Entradas para: <strong>{{ artista }}</strong></p>
+
+    <!-- Estado: Preparando el pago -->
+    <div *ngIf="estado === 'PREPARANDO'" class="alerta info">
+      <p>⏳ {{ mensaje }}</p>
+    </div>
+
+    <!-- Estado: Procesando con Stripe -->
+    <div *ngIf="estado === 'PROCESANDO'" class="alerta warning">
+      <p>🔄 {{ mensaje }}</p>
+    </div>
+
+    <!-- Estado: Éxito -->
+    <div *ngIf="estado === 'EXITOSO'" class="alerta success">
+      <p>✅ {{ mensaje }}</p>
+      <p><small>Redirigiendo...</small></p>
+    </div>
+
+    <!-- Estado: Error -->
+    <div *ngIf="estado === 'ERROR'" class="alerta error">
+      <p>❌ {{ error }}</p>
+      <button (click)="volver()" class="btn btn-outline">Volver a inicio</button>
+    </div>
+
+    <!-- El Formulario de Stripe (Solo se ve cuando estamos esperando el pago) -->
+    <!-- IMPORTANTE: Usamos [hidden] en vez de *ngIf para que Angular no elimine el div del código fuente y Stripe lo encuentre -->
+    <div [hidden]="estado !== 'ESPERANDO_PAGO'" class="formulario-stripe">
+      <p class="instrucciones">{{ mensaje }}</p>
+      
+      <div class="stripe-container">
+        <!-- ESTA ES LA ETIQUETA CLAVE QUE BUSCA TU TYPESCRIPT -->
+        <div #cardElement id="card-element"></div>
+      </div>
+
+      <div class="acciones">
+        <button (click)="volver()" class="btn btn-outline" [disabled]="estado === 'PROCESANDO'">Cancelar</button>
+        <button (click)="confirmarPago()" class="btn btn-primary" [disabled]="estado === 'PROCESANDO'">
+          Pagar ahora
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>

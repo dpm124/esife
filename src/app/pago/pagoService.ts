@@ -9,6 +9,10 @@ export class PagosService {
   constructor(private http: HttpClient) {}
 
   prepararPago(data: { tokenReservaEntrada: string }): Observable<any> {
-    return this.http.post('/api/pagos/preparar', data);
+    return this.http.post('http://localhost:8080/pagos/prepararPago', data);
+  }
+
+  confirmarPago(data: { paymentIntentId: string; tokenUsuario: string }): Observable<any> {
+    return this.http.post('http://localhost:8080/pagos/confirmar', data);
   }
 }

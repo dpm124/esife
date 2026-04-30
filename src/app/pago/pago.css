@@ -1,0 +1,83 @@
+.pago-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+  background-color: #f9fafb;
+  padding: 20px;
+}
+
+.pago-card {
+  background: white;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  width: 100%;
+  max-width: 450px;
+  text-align: center;
+}
+
+.subtitulo {
+  color: #6b7280;
+  margin-bottom: 20px;
+}
+
+.stripe-container {
+  padding: 15px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background-color: #ffffff;
+  margin-bottom: 20px;
+  min-height: 20px; /* Importante para que Stripe tenga espacio inicial */
+}
+
+.alerta {
+  padding: 15px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  font-weight: 500;
+}
+
+.info { background-color: #eff6ff; color: #1d4ed8; }
+.warning { background-color: #fef3c7; color: #b45309; }
+.success { background-color: #ecfdf5; color: #047857; }
+.error { background-color: #fef2f2; color: #b91c1c; }
+
+.acciones {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.btn {
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  border: none;
+  width: 100%;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background-color: #2563eb;
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #1d4ed8;
+}
+
+.btn-outline {
+  background-color: white;
+  border: 1px solid #d1d5db;
+  color: #374151;
+}
+
+.btn-outline:hover:not(:disabled) {
+  background-color: #f3f4f6;
+}
