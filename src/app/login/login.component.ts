@@ -43,6 +43,9 @@ export class LoginComponent implements OnInit {
           localStorage.setItem('tokenUsuario', tokenUsuario);
       localStorage.setItem('tokenReservaEntrada', this.tokenReservaEntrada!);
       // ✓ CAMBIO: Redirige a componente de pago, NO hace compra aquí
+      this.exito = true;
+      this.mensaje = '✓ Autenticación exitosa. Redirigiendo al pago...';
+      this.cdr.detectChanges(); // Forzamos actualización para mostrar el mensaje antes de redirigir
       this.router.navigate(['/pago'], { 
         queryParams: {
           tokenReservaEntrada: this.tokenReservaEntrada,
@@ -50,11 +53,17 @@ export class LoginComponent implements OnInit {
           artista: this.artista
         }
       });
-      this.exito = true;
-      this.mensaje = '✓ Autenticación exitosa. Redirigiendo al pago...';
-    }
-  });
-}
+    },
+      error: (error: any) => {
+        if (error.status === 404) {
+          this.mensaje = 'El usuario no existe. Por favor, regístrate primero.';
+        } else {
+          this.mensaje = 'Usuario o contraseña incorrectos.';
+        }
+        this.cdr.detectChanges();
+      }
+    });
+  }
 
   registrar() {
     this.http.post('http://localhost:8081/users/registrar', { name: this.name, pwd: this.pwd }, { responseType: 'text' })

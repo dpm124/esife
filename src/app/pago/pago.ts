@@ -68,7 +68,11 @@ export class PagoComponent implements OnInit {
     this.cdr.detectChanges(); // Forzamos actualización visual
 
     // 2. Inicializar Stripe "en la sombra"
-    this.stripe = await loadStripe('pk_test_51T4NTPRo7zC5hz4eg3j9DeRgudNHYbl06btCtz6xsFlgYdCCf7EUFqTDV8kOwDh97RL2sjZRCZvlAHnzzOLX3zOM00pezZcmXy');
+    
+    // Clave publica jorge stripe: pk_test_51T92mIK3cuk74EClzLWy8LJUvDJSRqhi6KcQ13Nqg5pRICG0MtXWISuyjv8Q8N70xej347QnCn0d1FM8KkF01A2D00hL4xCWHG
+    // Clave publica deigo stripe: pk_test_51T4NTPRo7zC5hz4eg3j9DeRgudNHYbl06btCtz6xsFlgYdCCf7EUFqTDV8kOwDh97RL2sjZRCZvlAHnzzOLX3zOM00pezZcmXy
+
+    this.stripe = await loadStripe('pk_test_51T92mIK3cuk74EClzLWy8LJUvDJSRqhi6KcQ13Nqg5pRICG0MtXWISuyjv8Q8N70xej347QnCn0d1FM8KkF01A2D00hL4xCWHG');
     if (!this.stripe) {
       this.error = 'Error al cargar Stripe.';
       this.estado = 'ERROR';
@@ -144,10 +148,24 @@ export class PagoComponent implements OnInit {
       this.estado = 'EXITOSO';
       this.mensaje = '✓ ¡Pago exitoso! El servidor está confirmando tus entradas...';
       this.cdr.detectChanges();
-
-      setTimeout(() => {
-        this.router.navigate(['/espectaculos']);
-      }, 4000);
+      
+      // Notificamos al backend para que marque la entrada como vendida y mande el email
+      this.pagosService.confirmarPago({
+        paymentIntentId: paymentIntent!.id,
+        tokenUsuario: this.tokenUsuario
+      }).subscribe({
+        next: () => {
+          this.mensaje = '✓ ¡Entrada confirmada! Te hemos enviado un email.';
+          this.cdr.detectChanges();
+          setTimeout(() => this.router.navigate(['/espectaculos']), 3000);
+        },
+        error: () => {
+          // El pago ya se hizo en Stripe, solo falló la confirmación en nuestro backend
+          this.mensaje = '✓ Pago realizado. Si no recibes el email, contacta con soporte.';
+          this.cdr.detectChanges();
+          setTimeout(() => this.router.navigate(['/espectaculos']), 3000);
+        }
+      });
 
     } catch (err: any) {
       this.error = 'Error de conexión con Stripe: ' + err.message;
