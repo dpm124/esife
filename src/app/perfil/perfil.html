@@ -1,0 +1,25 @@
+<div style="max-width:600px; margin:60px auto; font-family:sans-serif; padding:20px">
+  <h2>Mi perfil</h2>
+  <p><strong>Email:</strong> {{ email }}</p>
+
+  <h3>Mis entradas compradas</h3>
+  <div *ngIf="entradas.length === 0 && !mensaje">
+    <p>No tienes entradas compradas.</p>
+  </div>
+  <div *ngFor="let e of entradas" style="border:1px solid #ccc; padding:10px; margin-bottom:10px; border-radius:8px">
+    <p><strong>Artista:</strong> {{ e.artista }}</p>
+    <p><strong>Fecha:</strong> {{ e.fecha }}</p>
+    <p><strong>Precio:</strong> {{ e.precio }} €</p>
+    <p><strong>ID Entrada:</strong> {{ e.id }}</p>
+  </div>
+
+  <p style="color:red">{{ mensaje }}</p>
+
+  <br>
+  <button (click)="cerrarSesion()" style="padding:10px 20px; margin-right:10px; cursor:pointer">
+    Cerrar sesión
+  </button>
+  <button (click)="cancelarCuenta()" style="padding:10px 20px; background:red; color:white; border:none; cursor:pointer">
+    Cancelar cuenta
+  </button>
+</div>

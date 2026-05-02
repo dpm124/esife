@@ -2,11 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { EspectaculosService } from './espectaculos.service';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router'; 
 
 @Component({
   selector: 'app-espectaculos',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './espectaculos.html',
   styleUrl: './espectaculos.css',
 })
@@ -94,5 +94,10 @@ export class EspectaculosComponent implements OnInit {
         artista: espectaculo.artista
       }
     });
+  }
+
+  estaLogueado(): boolean {
+    if (typeof window === 'undefined') return false;
+    return !!localStorage.getItem('tokenUsuario');
   }
 }

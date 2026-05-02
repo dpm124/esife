@@ -33,54 +33,61 @@ export class LoginComponent implements OnInit {
       this.tokenReservaEntrada = params['tokenReservaEntrada'] || null;
       this.idEspectaculo = params['idEspectaculo'] || null;
       this.artista = params['artista'] || null;
-    });
-  }
-
-  login() {
-    this.http.post('http://localhost:8081/users/login', { name: this.name, pwd: this.pwd }, { responseType: 'text' })
-      .subscribe({
-        next: (tokenUsuario: string) => {
-          localStorage.setItem('tokenUsuario', tokenUsuario);
-      localStorage.setItem('tokenReservaEntrada', this.tokenReservaEntrada!);
-      // ✓ CAMBIO: Redirige a componente de pago, NO hace compra aquí
-      this.exito = true;
-      this.mensaje = '✓ Autenticación exitosa. Redirigiendo al pago...';
-      this.cdr.detectChanges(); // Forzamos actualización para mostrar el mensaje antes de redirigir
-      this.router.navigate(['/pago'], { 
-        queryParams: {
-          tokenReservaEntrada: this.tokenReservaEntrada,
-          idEspectaculo: this.idEspectaculo,
-          artista: this.artista
-        }
-      });
-    },
-      error: (error: any) => {
-        if (error.status === 404) {
-          this.mensaje = 'El usuario no existe. Por favor, regístrate primero.';
-        } else {
-          this.mensaje = 'Usuario o contraseña incorrectos.';
-        }
-        this.cdr.detectChanges();
+      if (params['registro'] === 'true') {
+        this.modoRegistro = true;
       }
     });
   }
 
-  registrar() {
-    this.http.post('http://localhost:8081/users/registrar', { name: this.name, pwd: this.pwd }, { responseType: 'text' })
-      .subscribe({
-        next: () => {
-          this.mensaje = 'Registro exitoso. Ahora puedes iniciar sesión.';
-          this.modoRegistro = false;
-          this.pwd = '';
-          this.cdr.detectChanges();
-          this.exito = true;
+  login() {
+    this.http.post('http://localhost:8081/users/login', { name: this.name, pwd: this.pwd }, { responseType: 'text' }).subscribe({
+      next: (tokenUsuario: string) => {
+        localStorage.setItem('tokenUsuario', tokenUsuario);
+        localStorage.setItem('emailUsuario', this.name);
+        // ✓ CAMBIO: Redirige a componente de pago, NO hace compra aquí
+        this.exito = true;
+        this.mensaje = '✓ Autenticación exitosa. Redirigiendo al pago...';
+        this.cdr.detectChanges(); // Forzamos actualización para mostrar el mensaje antes de redirigir
+          
+        if (this.tokenReservaEntrada) {
+          localStorage.setItem('tokenReservaEntrada', this.tokenReservaEntrada);
+          this.router.navigate(['/pago'], { 
+            queryParams: {
+              tokenReservaEntrada: this.tokenReservaEntrada,
+              idEspectaculo: this.idEspectaculo,
+              artista: this.artista
+            }
+          });
+        } else {
+            this.router.navigate(['/espectaculos']);
+          }
         },
         error: (error: any) => {
-          this.mensaje = error.status === 409 ? 'El usuario ya existe.' : 'Error al registrar el usuario.';
-          this.modoRegistro = false;
+          if (error.status === 404) {
+            this.mensaje = 'El usuario no existe. Por favor, regístrate primero.';
+          } else {
+            this.mensaje = 'Usuario o contraseña incorrectos.';
+          }
           this.cdr.detectChanges();
         }
       });
+    }
+
+  registrar() {
+    this.http.post('http://localhost:8081/users/registrar', { name: this.name, pwd: this.pwd }, { responseType: 'text' }).subscribe({
+      next: () => {
+        this.mensaje = 'Registro exitoso. Ahora puedes iniciar sesión.';
+        this.modoRegistro = false;
+        this.pwd = '';
+        this.cdr.detectChanges();
+        this.exito = true;
+      },
+      error: (error: any) => {
+        this.mensaje = error.status === 409 ? 'El usuario ya existe.' : 'Error al registrar el usuario.';
+        this.modoRegistro = false;
+        this.cdr.detectChanges();
+      }
+    });
   }
   
   activarModoRegistro() {

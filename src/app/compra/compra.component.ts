@@ -68,13 +68,25 @@ export class CompraComponent implements OnInit {
   }
 
   completarCompra() {
-    // ✓ Va a login pasando el tokenReservaEntrada correcto
-    this.router.navigate(['/login'], {
-      queryParams: {
-        tokenReservaEntrada: this.tokenReservaEntrada,
-        idEspectaculo: this.idEspectaculo,
-        artista: this.artista
+    const tokenUsuario = localStorage.getItem('tokenUsuario');
+    if (tokenUsuario) {
+      // Ya está logueado, va directo al pago
+      this.router.navigate(['/pago'], {
+        queryParams: {
+          tokenReservaEntrada: this.tokenReservaEntrada,
+          idEspectaculo: this.idEspectaculo,
+          artista: this.artista
+        }
+      });
+    } else {
+      // No está logueado, va al login
+      this.router.navigate(['/login'], {
+        queryParams: {
+          tokenReservaEntrada: this.tokenReservaEntrada,
+          idEspectaculo: this.idEspectaculo,
+          artista: this.artista
+        }
+      });
     }
-  });
   }
 }

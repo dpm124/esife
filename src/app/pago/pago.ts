@@ -109,7 +109,13 @@ export class PagoComponent implements OnInit {
           }
         },
         error: (error: any) => {
-          this.error = error.error?.error || 'No se pudo conectar con el servidor Spring Boot.';
+          if (error?.status === 401) {
+            this.error = 'Tu sesión ha caducado antes de iniciar el pago. Vuelve a iniciar sesión y repite la reserva.';
+          } else if (error?.status === 404) {
+            this.error = 'No se encontró la reserva para preparar el pago.';
+          } else {
+            this.error = error.error?.error || 'No se pudo conectar con el servidor Spring Boot.';
+          }
           this.estado = 'ERROR';
           this.cdr.detectChanges();
         }
@@ -145,8 +151,15 @@ export class PagoComponent implements OnInit {
         return;
       }
 
+      if (!paymentIntent?.id) {
+        this.error = 'No se pudo obtener el ID del pago confirmado.';
+        this.estado = 'ERROR';
+        this.cdr.detectChanges();
+        return;
+      }
+
       this.estado = 'EXITOSO';
-      this.mensaje = '✓ ¡Pago exitoso! El servidor está confirmando tus entradas...';
+      this.mensaje = '✓ ¡Pago exitoso! La entrada ya ha sido marcada como VENDIDA.';
       this.cdr.detectChanges();
       
       // Notificamos al backend para que marque la entrada como vendida y mande el email
@@ -159,9 +172,14 @@ export class PagoComponent implements OnInit {
           this.cdr.detectChanges();
           setTimeout(() => this.router.navigate(['/espectaculos']), 3000);
         },
-        error: () => {
-          // El pago ya se hizo en Stripe, solo falló la confirmación en nuestro backend
-          this.mensaje = '✓ Pago realizado. Si no recibes el email, contacta con soporte.';
+        error: (confirmError: any) => {
+          if (confirmError?.status === 401) {
+            this.mensaje = 'Tu sesión ha caducado antes de terminar la compra.';
+          } else if (confirmError?.status === 404) {
+            this.mensaje = 'No se encontró la reserva o el token ya no es válido.';
+          } else {
+            this.mensaje = '✓ Pago realizado. Si no recibes el email, contacta con soporte.';
+          }
           this.cdr.detectChanges();
           setTimeout(() => this.router.navigate(['/espectaculos']), 3000);
         }

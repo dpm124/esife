@@ -1,7 +1,15 @@
 <div class="page">
 
-  <nav class="navbar">
+  <nav class="navbar" style="display:flex; justify-content:space-between; align-items:center">
     <span class="logo">🎟️ ESIentradas</span>
+    <div style="display:flex; gap:10px; margin-right:20px; align-items:center">
+      <ng-container *ngIf="!estaLogueado()">
+        <a routerLink="/login" style="color:white; text-decoration:none">Iniciar sesión</a>
+        <span style="color:white">|</span>
+        <a routerLink="/login" [queryParams]="{registro: 'true'}" style="color:white; text-decoration:none">Registrarse</a>
+      </ng-container>
+      <a *ngIf="estaLogueado()" routerLink="/perfil" style="color:white; text-decoration:none">Mi perfil</a>
+    </div>
   </nav>
 
   <div class="hero">
