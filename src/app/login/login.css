@@ -55,6 +55,10 @@
   margin-bottom: 1.2rem;
 }
 
+.password-wrapper {
+  position: relative;
+}
+
 label {
   font-size: 0.9rem;
   color: #aaa;
@@ -69,6 +73,29 @@ input {
   font-size: 1rem;
   outline: none;
   transition: border-color 0.2s;
+}
+
+.password-wrapper input {
+  width: 100%;
+  padding-right: 3rem;
+  box-sizing: border-box;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 0.7rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  color: #aaa;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0.2rem;
+}
+
+.password-toggle:hover {
+  color: #f0f0f0;
 }
 
 input:focus {

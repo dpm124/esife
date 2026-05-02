@@ -26,7 +26,12 @@
         </div>
         <div class="form-group">
           <label for="pwd">Contraseña</label>
-          <input id="pwd" type="password" [(ngModel)]="pwd" name="pwd" placeholder="Tu contraseña" required />
+          <div class="password-wrapper">
+            <input id="pwd" [type]="mostrarPwd ? 'text' : 'password'" [(ngModel)]="pwd" name="pwd" placeholder="Tu contraseña" required />
+            <button type="button" class="password-toggle" (click)="togglePasswordVisibility()" [attr.aria-label]="mostrarPwd ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+              {{ mostrarPwd ? '🙈' : '👁️' }}
+            </button>
+          </div>
         </div>
         <button type="submit" class="btn-primary" [disabled]="!name || !pwd || !isEmailValid()">{{ tokenReservaEntrada ? 'Completar compra' : 'Iniciar sesión' }}</button>
         <button type="button" class="btn-registro" (click)="activarModoRegistro()">¿No tienes cuenta? Regístrate</button>
@@ -40,7 +45,12 @@
         </div>
         <div class="form-group">
           <label for="pwdReg">Contraseña</label>
-          <input id="pwdReg" type="password" [(ngModel)]="pwd" name="pwd" placeholder="Elige una contraseña" required />
+          <div class="password-wrapper">
+            <input id="pwdReg" [type]="mostrarPwd ? 'text' : 'password'" [(ngModel)]="pwd" name="pwd" placeholder="Elige una contraseña" required />
+            <button type="button" class="password-toggle" (click)="togglePasswordVisibility()" [attr.aria-label]="mostrarPwd ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+              {{ mostrarPwd ? '🙈' : '👁️' }}
+            </button>
+          </div>
         </div>
         <button type="submit" class="btn-primary" [disabled]="!name || !pwd || !isEmailValid()">Crear cuenta</button>
         <button type="button" class="btn-registro" (click)="modoRegistro = false; mensaje = null">¿Ya tienes cuenta? Inicia sesión</button>

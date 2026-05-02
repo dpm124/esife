@@ -15,6 +15,7 @@ export class LoginComponent implements OnInit {
   tokenReservaEntrada: string | null = null
   name: string = '';
   pwd: string = '';
+  mostrarPwd: boolean = false;
   mensaje: string | null = null;
   exito: boolean = false;
   modoRegistro: boolean = false;
@@ -119,5 +120,9 @@ export class LoginComponent implements OnInit {
 
   irARecuperar() {
     this.router.navigate(['/recuperar']);
+  }
+
+  togglePasswordVisibility() {
+    this.mostrarPwd = !this.mostrarPwd;
   }
 }

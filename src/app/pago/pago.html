@@ -31,8 +31,33 @@
       <p class="instrucciones">{{ mensaje }}</p>
       
       <div class="stripe-container">
-        <!-- ESTA ES LA ETIQUETA CLAVE QUE BUSCA TU TYPESCRIPT -->
-        <div #cardElement id="card-element"></div>
+        <div class="stripe-row">
+          <label>Número de tarjeta</label>
+          <div #cardNumberElement id="card-number-element" class="stripe-field"></div>
+        </div>
+        
+        <div class="stripe-row-group">
+          <div class="stripe-col">
+            <label>Fecha de caducidad</label>
+            <div #cardExpiryElement id="card-expiry-element" class="stripe-field"></div>
+          </div>
+          <div class="stripe-col">
+            <label>CVC</label>
+            <div #cardCvcElement id="card-cvc-element" class="stripe-field"></div>
+          </div>
+        </div>
+
+        <div class="stripe-row">
+          <label>Código postal</label>
+          <input
+            type="text"
+            name="codigoPostal"
+            [(ngModel)]="codigoPostal"
+            autocomplete="postal-code"
+            class="stripe-input"
+            placeholder="Introduce tu código postal"
+          />
+        </div>
       </div>
 
       <div class="acciones">

@@ -31,6 +31,56 @@
   min-height: 20px; /* Importante para que Stripe tenga espacio inicial */
 }
 
+.stripe-row {
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.stripe-row label,
+.stripe-col label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 8px;
+}
+
+.stripe-field {
+  padding: 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  background-color: #f9fafb;
+  font-size: 14px;
+  min-height: 40px;
+}
+
+.stripe-input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  background-color: #f9fafb;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.stripe-input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.stripe-row-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.stripe-col {
+  text-align: left;
+}
+
 .alerta {
   padding: 15px;
   border-radius: 6px;

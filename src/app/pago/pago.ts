@@ -14,7 +14,9 @@ import { PagosService } from './pagoService';
   styleUrl: './pago.css',
 })
 export class PagoComponent implements OnInit {
-  @ViewChild('cardElement') cardElementRef!: ElementRef;
+  @ViewChild('cardNumberElement') cardNumberElementRef!: ElementRef;
+  @ViewChild('cardExpiryElement') cardExpiryElementRef!: ElementRef;
+  @ViewChild('cardCvcElement') cardCvcElementRef!: ElementRef;
 
   tokenReservaEntrada: string = '';
   tokenUsuario: string = '';
@@ -26,10 +28,13 @@ export class PagoComponent implements OnInit {
   paymentIntentId: string = '';
   mensaje: string = '';
   error: string = '';
+  codigoPostal: string = '';
 
   stripe: Stripe | null = null;
   elements: StripeElements | null = null;
-  cardElement: any = null;
+  cardNumberElement: any = null;
+  cardExpiryElement: any = null;
+  cardCvcElement: any = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -96,7 +101,11 @@ export class PagoComponent implements OnInit {
       return;
     }
     this.elements = this.stripe.elements();
-    this.cardElement = this.elements.create('card');
+    this.cardNumberElement = this.elements.create('cardNumber', {
+      iconStyle: 'solid'
+    });
+    this.cardExpiryElement = this.elements.create('cardExpiry');
+    this.cardCvcElement = this.elements.create('cardCvc');
 
     // 3. Pedir el ClientSecret al Backend
     this.pagosService.prepararPago({ tokenReservaEntrada: this.tokenReservaEntrada })
@@ -119,9 +128,14 @@ export class PagoComponent implements OnInit {
           this.estado = 'ESPERANDO_PAGO';
           this.mensaje = 'Ingresa los datos de tu tarjeta.';
           this.cdr.detectChanges(); 
-
-          if (this.cardElementRef && this.cardElementRef.nativeElement) {
-            this.cardElement.mount(this.cardElementRef.nativeElement);
+          if (this.cardNumberElementRef?.nativeElement) {
+            this.cardNumberElement.mount(this.cardNumberElementRef.nativeElement);
+          }
+          if (this.cardExpiryElementRef?.nativeElement) {
+            this.cardExpiryElement.mount(this.cardExpiryElementRef.nativeElement);
+          }
+          if (this.cardCvcElementRef?.nativeElement) {
+            this.cardCvcElement.mount(this.cardCvcElementRef.nativeElement);
           }
         },
         error: (error: any) => {
@@ -139,7 +153,7 @@ export class PagoComponent implements OnInit {
   }
 
   async confirmarPago() {
-    if (!this.stripe || !this.cardElement) return;
+    if (!this.stripe || !this.cardNumberElement) return;
 
 
     // ✓ NUEVO: Evitamos llamar a Stripe si no tenemos el secreto del backend
@@ -157,7 +171,16 @@ export class PagoComponent implements OnInit {
     try {
       const { paymentIntent, error } = await this.stripe.confirmCardPayment(
         this.clientSecret,
-        { payment_method: { card: this.cardElement } }
+        {
+          payment_method: {
+            card: this.cardNumberElement,
+            billing_details: {
+              address: {
+                postal_code: this.codigoPostal
+              }
+            }
+          }
+        }
       );
 
       if (error) {
