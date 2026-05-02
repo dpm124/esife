@@ -56,8 +56,24 @@ export class PagoComponent implements OnInit {
         return;
       }
 
-      // Separamos la lógica asíncrona para no confundir a Angular
-      this.iniciarProcesoDePago();
+      this.validarSesionUsuario();
+    });
+  }
+
+  validarSesionUsuario() {
+    this.pagosService.validarTokenUsuario(this.tokenUsuario).subscribe({
+      next: () => {
+        this.iniciarProcesoDePago();
+      },
+      error: (error: any) => {
+        localStorage.removeItem('tokenUsuario');
+        localStorage.removeItem('emailUsuario');
+        this.error = error?.status === 401
+          ? 'Tu sesión ha caducado antes de iniciar el pago. Vuelve a iniciar sesión.'
+          : 'No se pudo validar tu sesión. Vuelve a iniciar sesión.';
+        this.estado = 'ERROR';
+        this.cdr.detectChanges();
+      }
     });
   }
 
@@ -70,9 +86,9 @@ export class PagoComponent implements OnInit {
     // 2. Inicializar Stripe "en la sombra"
     
     // Clave publica jorge stripe: pk_test_51T92mIK3cuk74EClzLWy8LJUvDJSRqhi6KcQ13Nqg5pRICG0MtXWISuyjv8Q8N70xej347QnCn0d1FM8KkF01A2D00hL4xCWHG
-    // Clave publica deigo stripe: pk_test_51T4NTPRo7zC5hz4eg3j9DeRgudNHYbl06btCtz6xsFlgYdCCf7EUFqTDV8kOwDh97RL2sjZRCZvlAHnzzOLX3zOM00pezZcmXy
+    // Clave publica diego stripe: pk_test_51T4NTPRo7zC5hz4eg3j9DeRgudNHYbl06btCtz6xsFlgYdCCf7EUFqTDV8kOwDh97RL2sjZRCZvlAHnzzOLX3zOM00pezZcmXy
 
-    this.stripe = await loadStripe('pk_test_51T92mIK3cuk74EClzLWy8LJUvDJSRqhi6KcQ13Nqg5pRICG0MtXWISuyjv8Q8N70xej347QnCn0d1FM8KkF01A2D00hL4xCWHG');
+    this.stripe = await loadStripe('pk_test_51T4NTPRo7zC5hz4eg3j9DeRgudNHYbl06btCtz6xsFlgYdCCf7EUFqTDV8kOwDh97RL2sjZRCZvlAHnzzOLX3zOM00pezZcmXy');
     if (!this.stripe) {
       this.error = 'Error al cargar Stripe.';
       this.estado = 'ERROR';
