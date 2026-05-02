@@ -21,28 +21,28 @@
 
       <form *ngIf="!exito && !modoRegistro" (ngSubmit)="login()">
         <div class="form-group">
-          <label for="name">Usuario</label>
-          <input id="name" type="text" [(ngModel)]="name" name="name" placeholder="Tu usuario" required />
+          <label for="name">Email</label>
+          <input id="name" type="email" [(ngModel)]="name" name="name" placeholder="tu@ejemplo.com" required />
         </div>
         <div class="form-group">
           <label for="pwd">Contraseña</label>
           <input id="pwd" type="password" [(ngModel)]="pwd" name="pwd" placeholder="Tu contraseña" required />
         </div>
-        <button type="submit" class="btn-primary" [disabled]="!name || !pwd">{{ tokenReservaEntrada ? 'Completar compra' : 'Iniciar sesión' }}</button>
+        <button type="submit" class="btn-primary" [disabled]="!name || !pwd || !isEmailValid()">{{ tokenReservaEntrada ? 'Completar compra' : 'Iniciar sesión' }}</button>
         <button type="button" class="btn-registro" (click)="activarModoRegistro()">¿No tienes cuenta? Regístrate</button>
         <button type="button" class="btn-link" (click)="irARecuperar()">¿Olvidaste tu contraseña?</button>  <!-- AÑADE ESTO -->
       </form>
 
       <form *ngIf="!exito && modoRegistro" (ngSubmit)="registrar()">
         <div class="form-group">
-          <label for="nameReg">Usuario</label>
-          <input id="nameReg" type="text" [(ngModel)]="name" name="name" placeholder="Elige un usuario" required />
+          <label for="nameReg">Email</label>
+          <input id="nameReg" type="email" [(ngModel)]="name" name="name" placeholder="tu@ejemplo.com" required />
         </div>
         <div class="form-group">
           <label for="pwdReg">Contraseña</label>
           <input id="pwdReg" type="password" [(ngModel)]="pwd" name="pwd" placeholder="Elige una contraseña" required />
         </div>
-        <button type="submit" class="btn-primary" [disabled]="!name || !pwd">Crear cuenta</button>
+        <button type="submit" class="btn-primary" [disabled]="!name || !pwd || !isEmailValid()">Crear cuenta</button>
         <button type="button" class="btn-registro" (click)="modoRegistro = false; mensaje = null">¿Ya tienes cuenta? Inicia sesión</button>
       </form>
 

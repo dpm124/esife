@@ -193,9 +193,20 @@ export class PagoComponent implements OnInit {
             this.mensaje = 'Tu sesión ha caducado antes de terminar la compra.';
           } else if (confirmError?.status === 404) {
             this.mensaje = 'No se encontró la reserva o el token ya no es válido.';
+          } else if (confirmError?.status === 500) {
+            this.mensaje = confirmError?.error?.error
+              || confirmError?.error?.message
+              || confirmError?.error?.detail
+              || confirmError?.message
+              || 'No se pudo enviar el email de compra.';
           } else {
-            this.mensaje = '✓ Pago realizado. Si no recibes el email, contacta con soporte.';
+            this.mensaje = confirmError?.error?.error
+              || confirmError?.error?.message
+              || confirmError?.error?.detail
+              || confirmError?.message
+              || 'No se pudo completar la confirmación de la compra.';
           }
+          this.estado = 'ERROR';
           this.cdr.detectChanges();
           setTimeout(() => this.router.navigate(['/espectaculos']), 3000);
         }

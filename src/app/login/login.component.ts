@@ -40,6 +40,12 @@ export class LoginComponent implements OnInit {
   }
 
   login() {
+    if (!this.isEmailValid()) {
+      this.mensaje = 'Introduce un email válido (ejemplo: usuario@dominio.com)';
+      this.cdr.detectChanges();
+      return;
+    }
+
     this.http.post('http://localhost:8081/users/login', { name: this.name, pwd: this.pwd }, { responseType: 'text' }).subscribe({
       next: (tokenUsuario: string) => {
         localStorage.setItem('tokenUsuario', tokenUsuario);
@@ -74,6 +80,12 @@ export class LoginComponent implements OnInit {
     }
 
   registrar() {
+    if (!this.isEmailValid()) {
+      this.mensaje = 'Introduce un email válido (ejemplo: usuario@dominio.com)';
+      this.cdr.detectChanges();
+      return;
+    }
+
     this.http.post('http://localhost:8081/users/registrar', { name: this.name, pwd: this.pwd }, { responseType: 'text' }).subscribe({
       next: () => {
         this.mensaje = 'Registro exitoso. Ahora puedes iniciar sesión.';
@@ -88,6 +100,11 @@ export class LoginComponent implements OnInit {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  isEmailValid(): boolean {
+    const re = /\S+@\S+\.\S+/;
+    return re.test(this.name);
   }
   
   activarModoRegistro() {
