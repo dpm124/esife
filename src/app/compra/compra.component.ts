@@ -17,6 +17,7 @@ export class CompraComponent implements OnInit {
   artista: string | null = null;
   entradas: any[] = [];
   tokenReservaEntrada: string | null = null;
+  entradaSeleccionada: any = null;
   mensaje: string | null = null;
 
   constructor(
@@ -48,26 +49,49 @@ export class CompraComponent implements OnInit {
     });
   }
 
-  reservar(entrada: any) {
+  seleccionar(entrada: any) {
+    if (this.entradaSeleccionada?.id === entrada.id) {
+      this.entradaSeleccionada = null;
+      this.tokenReservaEntrada = null;
+      this.mensaje = 'Entrada deseleccionada.';
+      this.cdr.detectChanges();
+      return;
+    }
+
+    if (this.entradaSeleccionada) {
+      this.entradaSeleccionada = null;
+      this.tokenReservaEntrada = null;
+    }
+
     this.espectaculosService.reservarEntrada(entrada.id).subscribe({
       next: (tokenReservaEntrada: string) => {  
+        this.entradaSeleccionada = entrada;
         this.tokenReservaEntrada = tokenReservaEntrada; 
-        this.mensaje = `✓ Entrada #${entrada.id} reservada por 10 minutos. 
-                        Precio: ${(entrada.precio / 100).toFixed(2)} €
-                        Completa tu compra para confirmar.`;
-        this.cargarEntradas();  // Actualiza lista
+        this.mensaje = `✓ Entrada #${entrada.id} seleccionada. Precio: ${(entrada.precio / 100).toFixed(2)} €`;
+        this.cdr.detectChanges();
       },
       error: (error: any) => {
-        this.mensaje = error.error?.message || 'Error al reservar la entrada.';
+        this.mensaje = error.error?.message || 'Error al seleccionar la entrada.';
+        this.cdr.detectChanges();
       }
     });
+  }
+
+  estaSeleccionada(entrada: any): boolean {
+    return this.entradaSeleccionada?.id === entrada.id;
   }
 
   volver() {
     this.router.navigate(['/espectaculos']);
   }
 
-  completarCompra() {
+  tramitarCompra() {
+    if (!this.tokenReservaEntrada) {
+      this.mensaje = 'Selecciona una entrada primero.';
+      this.cdr.detectChanges();
+      return;
+    }
+
     const tokenUsuario = localStorage.getItem('tokenUsuario');
     if (tokenUsuario) {
       // Ya está logueado, va directo al pago

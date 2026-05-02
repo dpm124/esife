@@ -9,17 +9,17 @@
 
     <div class="event-header">
       <h1>{{ artista }}</h1>
-      <p>Selecciona una entrada y resérvala</p>
+      <p>Selecciona una entrada para comprar</p>
     </div>
 
     <div *ngIf="mensaje" class="mensaje">{{ mensaje }}</div>
     
-    <div *ngIf="tokenReservaEntrada" class="boton-compra">
-      <button class="btn-primary" (click)="completarCompra()">Completar compra →</button>
+    <div *ngIf="entradaSeleccionada" class="boton-compra">
+      <button class="btn-primary" (click)="tramitarCompra()">Tramitar compra →</button>
     </div>
 
     <div class="entradas-grid">
-      <div class="entrada-card" *ngFor="let entrada of entradas">
+      <div class="entrada-card" *ngFor="let entrada of entradas" [class.seleccionada]="estaSeleccionada(entrada)">
         <div class="entrada-info">
           <span class="entrada-id">Entrada #{{ entrada.id }}</span>
           <span class="entrada-precio">{{ (entrada.precio / 100).toFixed(2) }} €</span>
@@ -28,7 +28,7 @@
             {{ entrada.estado }}
           </span>
         </div>
-        <button class="btn-primary" (click)="reservar(entrada)" [disabled]="entrada.estado !== 'DISPONIBLE'">Reservar</button>
+        <button class="btn-primary" (click)="seleccionar(entrada)" [disabled]="entrada.estado !== 'DISPONIBLE' && !estaSeleccionada(entrada)" [class.btn-secondary]="estaSeleccionada(entrada)">{{ estaSeleccionada(entrada) ? 'Deseleccionar' : 'Seleccionar' }}</button>
       </div>
     </div>
 
