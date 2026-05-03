@@ -182,3 +182,44 @@ input:focus {
   margin-left: 0.3rem;
   text-decoration: underline;
 }
+
+.password-feedback-box {
+  margin-top: 10px;
+  padding: 12px;
+  background-color: rgba(255, 152, 0, 0.1);
+  border-left: 4px solid #ff9800;
+  border-radius: 4px;
+}
+.warning-text {
+  color: #ff9800;
+  font-weight: bold;
+  font-size: 0.9rem;
+  margin: 0 0 5px 0;
+}
+.password-feedback-box ul {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 0.8rem;
+  color: #ccc;
+}
+
+/* Barra de fuerza de contraseña */
+.strength-bar {
+  margin-top: 8px;
+  height: 10px;
+  background: #191919;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid #2a2a2a;
+}
+.strength-bar .bar-fill {
+  height: 100%;
+  width: 0%;
+  transition: width 220ms ease-in-out, background 220ms ease-in-out;
+  background: linear-gradient(90deg, #ff4d4d, #ffb84d, #a3e635, #4ade80);
+}
+.strength-bar[data-score="0"] .bar-fill { background: #ff4d4d; }
+.strength-bar[data-score="1"] .bar-fill { background: linear-gradient(90deg,#ff7b59,#ffb84d); }
+.strength-bar[data-score="2"] .bar-fill { background: linear-gradient(90deg,#ffb84d,#facc15); }
+.strength-bar[data-score="3"] .bar-fill { background: linear-gradient(90deg,#a3e635,#4ade80); }
+.strength-bar[data-score="4"] .bar-fill { background: linear-gradient(90deg,#4ade80,#10b981); }

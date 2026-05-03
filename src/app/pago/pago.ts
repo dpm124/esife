@@ -17,24 +17,26 @@ export class PagoComponent implements OnInit {
   @ViewChild('cardNumberElement') cardNumberElementRef!: ElementRef;
   @ViewChild('cardExpiryElement') cardExpiryElementRef!: ElementRef;
   @ViewChild('cardCvcElement') cardCvcElementRef!: ElementRef;
+  @ViewChild('postalCodeElement') postalCodeElementRef!: ElementRef;
 
   tokenReservaEntrada: string = '';
   tokenUsuario: string = '';
   idEspectaculo: string = '';
   artista: string = '';
+  codigoPostal: string = '';
 
   estado: 'PREPARANDO' | 'ESPERANDO_PAGO' | 'PROCESANDO' | 'EXITOSO' | 'ERROR' = 'PREPARANDO';
   clientSecret: string = '';
   paymentIntentId: string = '';
   mensaje: string = '';
   error: string = '';
-  codigoPostal: string = '';
 
   stripe: Stripe | null = null;
   elements: StripeElements | null = null;
   cardNumberElement: any = null;
   cardExpiryElement: any = null;
   cardCvcElement: any = null;
+  postalCodeElement: any = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -107,6 +109,7 @@ export class PagoComponent implements OnInit {
     this.cardExpiryElement = this.elements.create('cardExpiry');
     this.cardCvcElement = this.elements.create('cardCvc');
 
+
     // 3. Pedir el ClientSecret al Backend
     this.pagosService.prepararPago({ tokenReservaEntrada: this.tokenReservaEntrada })
       .subscribe({
@@ -171,16 +174,7 @@ export class PagoComponent implements OnInit {
     try {
       const { paymentIntent, error } = await this.stripe.confirmCardPayment(
         this.clientSecret,
-        {
-          payment_method: {
-            card: this.cardNumberElement,
-            billing_details: {
-              address: {
-                postal_code: this.codigoPostal
-              }
-            }
-          }
-        }
+        { payment_method: { card: this.cardNumberElement } }
       );
 
       if (error) {
