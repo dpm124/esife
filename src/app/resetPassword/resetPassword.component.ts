@@ -5,10 +5,10 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 @Component({
-  selector: 'app-reset-password',
+  selector: 'app-resetPassword',
   imports: [CommonModule, FormsModule],
-  templateUrl: './reset-password.html',
-  styleUrl: './reset-password.css',
+  templateUrl: './resetPassword.html',
+  styleUrl: './resetPassword.css',
 })
 export class ResetPassword implements OnInit {
   token: string | null = null;

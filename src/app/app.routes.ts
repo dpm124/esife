@@ -5,7 +5,7 @@ import { LoginComponent } from './login/login.component';
 import { ColaComponent } from './cola/cola.component';
 import { PagoComponent } from './pago/pago';  // ✓ AGREGADO
 import { Recuperar } from './recuperar/recuperar.component';
-import { ResetPassword } from './reset-password/reset-password.component';
+import { ResetPassword } from './resetPassword/resetPassword.component';
 import { PerfilComponent } from './perfil/perfil.component';
 
 export const routes: Routes = [
@@ -16,6 +16,6 @@ export const routes: Routes = [
     { path: 'pago', component: PagoComponent },  // ✓ AGREGADO
     { path: 'cola', component: ColaComponent },
     { path: 'recuperar', component: Recuperar },
-    { path: 'reset-password', component: ResetPassword },
+    { path: 'resetPassword', component: ResetPassword },
     { path: 'perfil', component: PerfilComponent }
 ];
