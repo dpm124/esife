@@ -86,24 +86,31 @@ private agruparEntradas(data: any[]) {
   }
 
   descargarTodo(grupo: EventoAgrupado) {
-    grupo.tickets.forEach(ticket => {
-      // Usamos ruta relativa también aquí
-      this.http.get(`/compras/ticket/pdf/${ticket.id}`, { responseType: 'blob' })
-        .subscribe({
-          next: (res: Blob) => {
-            const url = window.URL.createObjectURL(res);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `Entrada_${grupo.artista}_${ticket.id}.pdf`;
-            a.click();
-            window.URL.revokeObjectURL(url);
-          },
-          error: () => alert('Error al descargar el PDF')
-        });
+  // 1. Extraemos los IDs y los unimos por comas (ej: "1,2,5")
+  const listaIds = grupo.tickets.map(t => t.id).join(',');
+
+  // 2. Llamamos al nuevo endpoint de ZIP
+  const urlZip = `/compras/ticket/zip?ids=${listaIds}`;
+
+  this.http.get(urlZip, { responseType: 'blob' })
+    .subscribe({
+      next: (blob: Blob) => {
+        // 3. Creamos el link de descarga único
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Entradas_${grupo.artista.replace(/\s+/g, '_')}.zip`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: () => {
+        this.mensaje = 'No se pudo generar el archivo comprimido.';
+      }
     });
-  }
+}
 
   volver() { this.router.navigate(['/espectaculos']); }
+
   cerrarSesion() {
     localStorage.removeItem('tokenUsuario');
     localStorage.removeItem('emailUsuario');
