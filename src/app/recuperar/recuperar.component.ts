@@ -22,7 +22,7 @@ export class Recuperar {
   ) {}
 
   enviar() {
-    this.http.post('http://localhost:8081/users/recuperar',
+    this.http.post('/users/recuperar',
       { email: this.email },
       { responseType: 'text' }
     ).subscribe({

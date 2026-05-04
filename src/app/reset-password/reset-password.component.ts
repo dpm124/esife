@@ -35,7 +35,7 @@ export class ResetPassword implements OnInit {
       return;
     }
 
-    this.http.post('http://localhost:8081/users/resetPassword',
+    this.http.post('/users/resetPassword',
       { token: this.token, pwd: this.pwd, password: this.pwd },
       { responseType: 'text' }
     ).subscribe({

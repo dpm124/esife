@@ -57,7 +57,7 @@ export class LoginComponent implements OnInit {
       return;
     }
 
-    this.http.post('http://localhost:8081/users/login', { name: this.name, pwd: this.pwd, password: this.pwd }, { responseType: 'text' }).subscribe({
+    this.http.post('/users/login', { name: this.name, pwd: this.pwd, password: this.pwd }, { responseType: 'text' }).subscribe({
       next: (tokenUsuario: string) => {
         localStorage.setItem('tokenUsuario', tokenUsuario);
         localStorage.setItem('emailUsuario', this.name);
@@ -102,7 +102,7 @@ export class LoginComponent implements OnInit {
       return;
     }
 
-    this.http.post('http://localhost:8081/users/registrar', { name: this.name, pwd: this.pwd, password: this.pwd }, { responseType: 'text' }).subscribe({
+    this.http.post('/users/registrar', { name: this.name, pwd: this.pwd, password: this.pwd }, { responseType: 'text' }).subscribe({
       next: () => {
         this.mensaje = 'Registro exitoso. Ahora puedes iniciar sesión.';
         this.modoRegistro = false;
@@ -188,7 +188,7 @@ export class LoginComponent implements OnInit {
       this.passwordFeedback = null;
       return;
     }
-    this.http.post<DtoRespuestaValidacionPasswd>('http://localhost:8081/users/validar-password', 
+    this.http.post<DtoRespuestaValidacionPasswd>('/users/validar-password', 
       { name: this.name, pwd: this.pwd, password: this.pwd }
     ).subscribe({
       next: (res) => {

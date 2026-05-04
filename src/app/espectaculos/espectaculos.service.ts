@@ -9,52 +9,52 @@ export class EspectaculosService {
   constructor(private http: HttpClient) {}
 
   getEscenarios() {
-    return this.http.get<any[]>('http://localhost:8080/busqueda/getEscenarios');
+    return this.http.get<any[]>('/busqueda/getEscenarios');
   }
 
   getEspectaculos(escenario: any) {
-    return this.http.get<any[]>(`http://localhost:8080/busqueda/getEspectaculos/${escenario.id}`);
+    return this.http.get<any[]>(`/busqueda/getEspectaculos/${escenario.id}`);
   }
 
   buscarEspectaculos(artista: string) {
-    return this.http.get<any[]>(`http://localhost:8080/busqueda/getEspectaculos?artista=${artista}`);
+    return this.http.get<any[]>(`/busqueda/getEspectaculos?artista=${artista}`);
   }
 
   // Devuelve la LISTA de entradas de un espectáculo (con id y precio)
   getEntradas(espectaculoId: any) {
-    return this.http.get<any[]>(`http://localhost:8080/busqueda/getEntradas?espectaculoId=${espectaculoId}`);
+    return this.http.get<any[]>(`/busqueda/getEntradas?espectaculoId=${espectaculoId}`);
   }
 
   // Devuelve el número de entradas libres (un número, no una lista)
   getEntradasLibres(espectaculoId: any) {
-    return this.http.get<number>(`http://localhost:8080/busqueda/getEntradasLibres/${espectaculoId}`);
+    return this.http.get<number>(`/busqueda/getEntradasLibres/${espectaculoId}`);
   }
 
   reservarEntrada(entradaId: number) {
-    return this.http.put('http://localhost:8080/reservas/reservar?entradaId=' + entradaId, {}, { responseType: 'text' });
+    return this.http.put('/reservas/reservar?entradaId=' + entradaId, {}, { responseType: 'text' });
   }
 
   unirseACola(espectaculoId: number, emailUsuario: string) {
-    return this.http.post('http://localhost:8080/cola/unirse', {}, {
+    return this.http.post('/cola/unirse', {}, {
       params: { espectaculoId, emailUsuario },
       responseType: 'text'
     });
   }
 
   consultarPosicionCola(espectaculoId: number, emailUsuario: string) {
-    return this.http.get('http://localhost:8080/cola/posicion', {
+    return this.http.get('/cola/posicion', {
       params: { espectaculoId, emailUsuario },
       responseType: 'text'
     });
   }
 
   tieneTurno(espectaculoId: number, emailUsuario: string) {
-    return this.http.get<boolean>('http://localhost:8080/cola/turno', {
+    return this.http.get<boolean>('/cola/turno', {
       params: { espectaculoId, emailUsuario } });
   }
 
   salirDeCola(espectaculoId: number, emailUsuario: string) {
-    return this.http.delete('http://localhost:8080/cola/salir', {
+    return this.http.delete('/cola/salir', {
       params: { espectaculoId, emailUsuario },
       responseType: 'text'
     });

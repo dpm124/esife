@@ -9,7 +9,7 @@ export class Pagos {
   constructor(private http: HttpClient) {}
 
   prepararPago(info: any) {
-    return this.http.post('http://localhost:8080/pagos/prepararPago', info);  
+    return this.http.post('/pagos/prepararPago', info);  
   };
 }
 

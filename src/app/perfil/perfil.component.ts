@@ -27,7 +27,7 @@ export class PerfilComponent implements OnInit {
       this.email = localStorage.getItem('emailUsuario') || '';
       this.tokenUsuario = localStorage.getItem('tokenUsuario') || '';
       if (this.email) {
-        this.http.get<any[]>(`http://localhost:8080/compras/misEntradas?emailUsuario=${this.email}`)
+        this.http.get<any[]>(`/compras/misEntradas?emailUsuario=${this.email}`)
           .subscribe({
             next: (data) => { this.entradas = [...data]; this.cdr.detectChanges(); },
             error: () => this.mensaje = 'No se pudieron cargar las entradas.'
@@ -40,7 +40,7 @@ export class PerfilComponent implements OnInit {
     const password = prompt('Introduce tu contraseña para confirmar:');
     if (!password) return;
 
-    this.http.post('http://localhost:8081/users/cancelar',
+    this.http.post('/users/cancelar',
       { name: this.email, pwd: password, password: password },
       { responseType: 'text' }
     ).subscribe({
