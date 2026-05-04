@@ -31,27 +31,57 @@
   </div>
 
   <div class="content">
-    <div class="events-grid">
-      <div class="event-card" *ngFor="let esp of espectaculos">
-        <div class="event-card-body">
-          <h3>{{ esp.artista }}</h3>
-          <p class="escenario">📍 {{ esp.escenario }}</p>
-          <p class="fecha">📅 {{ esp.fecha | date:'dd/MM/yyyy HH:mm' }}</p>
-          <p *ngIf="esp.fechaAperturaTaquilla" class="taquilla">
-            🕐 Taquilla abre: {{ esp.fechaAperturaTaquilla | date:'dd/MM/yyyy HH:mm' }}
-          </p>
-        </div>
-        <div class="event-card-footer">
-          <button *ngIf="!esp.fechaAperturaTaquilla" class="btn-primary small" (click)="irAComprar(esp)">
-            Ver entradas →
-          </button>
-          <button *ngIf="esp.fechaAperturaTaquilla" class="btn-secondary small" (click)="irACola(esp)">
-            Unirse a la cola →
-          </button>
-        </div>
-      </div>
+
+    <div *ngIf="artistaSeleccionado" class="breadcrumb-container" style="margin-bottom: 20px;">
+      <button class="btn-secondary small" (click)="volverAArtistas()" style="margin-bottom: 10px;">
+        ← Volver a todos los artistas
+      </button>
+      <h2 style="color: white;">Fechas para: {{ artistaSeleccionado }}</h2>
     </div>
-    <p *ngIf="espectaculos.length === 0 && buscado" class="no-data">No se encontraron espectáculos.</p>
+
+    <div class="events-grid">
+      
+      <ng-container *ngIf="!artistaSeleccionado">
+        <div class="event-card artist-card" *ngFor="let art of artistasAgrupados" (click)="seleccionarArtista(art.nombre)" style="cursor: pointer;">
+          <div class="event-card-body">
+            <span class="badge" style="background: rgba(167, 139, 250, 0.15); color: #a78bfa;">{{ art.categoria }}</span>
+            <h3 style="margin-top: 10px;">{{ art.nombre }}</h3>
+            <p class="fecha" style="color: #a78bfa;">
+              📅 {{ art.totalFechas }} {{ art.totalFechas === 1 ? 'fecha disponible' : 'fechas disponibles' }}
+            </p>
+          </div>
+          <div class="event-card-footer">
+            <button class="btn-primary small">Ver fechas disponibles</button>
+          </div>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="artistaSeleccionado">
+        <div class="event-card" *ngFor="let esp of fechasDelArtista">
+          <div class="event-card-body">
+            <h3>{{ esp.artista }}</h3>
+            <p class="escenario">📍 {{ esp.escenario?.nombre }}</p>
+            <p class="fecha">📅 {{ esp.fecha | date:'dd/MM/yyyy HH:mm' }}</p>
+            <p *ngIf="esp.fechaAperturaTaquilla" class="taquilla" style="font-size: 0.85rem; color: #fbbf24;">
+              🕐 La cola abre el: {{ esp.fechaAperturaTaquilla | date:'dd/MM/yyyy HH:mm' }}
+            </p>
+          </div>
+          <div class="event-card-footer">
+            <button *ngIf="!esp.fechaAperturaTaquilla" class="btn-primary small" (click)="irAComprar(esp)">
+              Ver entradas →
+            </button>
+            <button *ngIf="esp.fechaAperturaTaquilla" class="btn-secondary small" (click)="irACola(esp)">
+              Unirse a la cola →
+            </button>
+          </div>
+        </div>
+      </ng-container>
+
+    </div>
+
+    <p *ngIf="artistasAgrupados.length === 0 && buscado" class="no-data" style="color: #ccc; text-align: center; margin-top: 40px;">
+      No se encontraron espectáculos para tu búsqueda.
+    </p>
   </div>
 
 </div>

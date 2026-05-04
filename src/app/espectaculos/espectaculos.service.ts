@@ -25,6 +25,11 @@ export class EspectaculosService {
     return this.http.get<any[]>(`/busqueda/getEntradas?espectaculoId=${espectaculoId}`);
   }
 
+  // Devuelve solo las entradas disponibles, ya preparadas para la pantalla de compra
+  getEntradasDisponibles(espectaculoId: any) {
+    return this.http.get<any[]>(`/busqueda/getEntradasDisponibles?espectaculoId=${espectaculoId}`);
+  }
+
   // Devuelve el número de entradas libres (un número, no una lista)
   getEntradasLibres(espectaculoId: any) {
     return this.http.get<number>(`/busqueda/getEntradasLibres/${espectaculoId}`);

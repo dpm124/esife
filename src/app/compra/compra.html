@@ -23,7 +23,15 @@
         <div class="entrada-info">
           <span class="entrada-id">Entrada #{{ entrada.id }}</span>
           <span class="entrada-precio">{{ (entrada.precio / 100).toFixed(2) }} €</span>
-          <span class="entrada-zona">Zona {{ entrada.zona }}</span>
+          <span class="entrada-zona" *ngIf="entrada.ubicacion.tipo === 'ZONA'">
+            Zona {{ entrada.ubicacion.zona }}
+          </span>
+          <span class="entrada-zona" *ngIf="entrada.ubicacion.tipo === 'BUTACA'">
+            {{ entrada.ubicacion.descripcion }}
+          </span>
+          <span class="entrada-zona" *ngIf="entrada.ubicacion.tipo === 'DESCONOCIDO'">
+            {{ entrada.ubicacion.descripcion }}
+          </span>
           <span class="entrada-estado" [class.disponible]="entrada.estado === 'DISPONIBLE'" [class.reservada]="entrada.estado !== 'DISPONIBLE'">
             {{ entrada.estado }}
           </span>

@@ -4,6 +4,24 @@ import { EspectaculosService } from '../espectaculos/espectaculos.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
+interface EntradaUbicacion {
+  tipo: 'BUTACA' | 'ZONA' | 'DESCONOCIDO';
+  descripcion: string;
+  planta?: number;
+  fila?: number;
+  butaca?: number;
+  zona?: string;
+}
+
+interface EntradaDTO {
+  id: number;
+  precio: number;
+  estado: string;
+  emailComprador?: string | null;
+  nombreEspectaculo: string;
+  ubicacion: EntradaUbicacion;
+}
+
 
 @Component({
   selector: 'app-compra',
@@ -15,9 +33,9 @@ import { FormsModule } from '@angular/forms';
 export class CompraComponent implements OnInit {
   idEspectaculo: string | null = null;
   artista: string | null = null;
-  entradas: any[] = [];
+  entradas: EntradaDTO[] = [];
   tokenReservaEntrada: string | null = null;
-  entradaSeleccionada: any = null;
+  entradaSeleccionada: EntradaDTO | null = null;
   mensaje: string | null = null;
 
   constructor(
@@ -38,7 +56,7 @@ export class CompraComponent implements OnInit {
   }
 
   cargarEntradas() {
-    this.espectaculosService.getEntradas(this.idEspectaculo!).subscribe({
+    this.espectaculosService.getEntradasDisponibles(this.idEspectaculo!).subscribe({
       next: (response: any) => {
         this.entradas = [...response];
         this.cdr.detectChanges();
@@ -49,7 +67,7 @@ export class CompraComponent implements OnInit {
     });
   }
 
-  seleccionar(entrada: any) {
+  seleccionar(entrada: EntradaDTO) {
     if (this.entradaSeleccionada?.id === entrada.id) {
       this.entradaSeleccionada = null;
       this.tokenReservaEntrada = null;
@@ -77,7 +95,7 @@ export class CompraComponent implements OnInit {
     });
   }
 
-  estaSeleccionada(entrada: any): boolean {
+  estaSeleccionada(entrada: EntradaDTO): boolean {
     return this.entradaSeleccionada?.id === entrada.id;
   }
 
