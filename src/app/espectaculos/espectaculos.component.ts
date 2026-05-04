@@ -48,16 +48,19 @@ export class EspectaculosComponent implements OnInit {
   }
 
   /**
-   * Procesa la lista plana de espectáculos y la agrupa por Artista
+   * Procesa la lista plana de espectáculos y la agrupa por Artista.
+   * Mapea valores de tipo escenario con fallback robusto.
    */
   private procesarEspectaculos(data: any[]) {
-    console.log('DEBUG: Primer espectáculo recibido:', data[0]); // DEBUG
     const grupos = data.reduce((acc, current) => {
       if (!acc[current.artista]) {
+        // Mapear tipo de escenario con validación robusta
+        const tipoRaw = current.escenario?.tipo || 'DESCONOCIDO';
+        const tipoMapeado = this.mapearTipoEscenario(tipoRaw);
+        
         acc[current.artista] = {
           nombre: current.artista,
-          // Navegamos al tipo del escenario: current.escenario.tipo (TEATRO, CONCIERTO, ESTADIO)
-          categoria: current.escenario?.tipo || 'Espectáculo',
+          categoria: tipoMapeado,
           totalFechas: 0,
           eventos: []
         };
@@ -78,6 +81,20 @@ export class EspectaculosComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
+  /**
+   * Mapea valores de tipo escenario a etiquetas legibles.
+   * Soporta: TEATRO, CONCIERTO, ESTADIO, DESCONOCIDO
+   */
+  private mapearTipoEscenario(tipo: string): string {
+    const mapa: { [key: string]: string } = {
+      'TEATRO': 'Teatro',
+      'CONCIERTO': 'Concierto',
+      'ESTADIO': 'Estadio',
+      'DESCONOCIDO': 'Espectáculo'
+    };
+    return mapa[tipo] || 'Espectáculo'; // Fallback final
+  }
+
   cargarTodos() {
     this.espectaculosService.buscarEspectaculos('').subscribe({
       next: (response: any[]) => {
@@ -90,8 +107,17 @@ export class EspectaculosComponent implements OnInit {
   }
 
   buscarPorArtista() {
+    // Limpiar estado completamente para evitar residuos
     this.escenarioSeleccionado = null;
-    this.artistaSeleccionado = null; // Volvemos a la vista general al buscar
+    this.artistaSeleccionado = null;
+    this.fechasDelArtista = [];
+    this.artistasAgrupados = [];
+    
+    if (!this.busqueda.trim()) {
+      this.cargarTodos();
+      return;
+    }
+    
     this.espectaculosService.buscarEspectaculos(this.busqueda).subscribe({
       next: (response: any[]) => {
         this.procesarEspectaculos(response);
@@ -103,8 +129,12 @@ export class EspectaculosComponent implements OnInit {
   }
 
   buscarPorEscenario() {
+    // Limpiar estado completamente para evitar residuos
     this.busqueda = '';
-    this.artistaSeleccionado = null; // Volvemos a la vista general al filtrar
+    this.artistaSeleccionado = null;
+    this.fechasDelArtista = [];
+    this.artistasAgrupados = [];
+    
     if (!this.escenarioSeleccionado) {
       this.cargarTodos();
       return;
