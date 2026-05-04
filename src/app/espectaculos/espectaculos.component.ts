@@ -70,6 +70,15 @@ export class EspectaculosComponent implements OnInit {
       return acc;
     }, {} as any);
 
+    // Ordenar cronológicamente las fechas dentro de cada artista para facilitar la selección
+    Object.values(grupos).forEach((grupo: any) => {
+      grupo.eventos.sort((a: any, b: any) => {
+        const fechaA = new Date(a.fecha).getTime();
+        const fechaB = new Date(b.fecha).getTime();
+        return fechaA - fechaB;
+      });
+    });
+
     this.artistasAgrupados = Object.values(grupos);
     this.buscado = true;
 
@@ -96,12 +105,20 @@ export class EspectaculosComponent implements OnInit {
   }
 
   cargarTodos() {
+    console.log('🔄 Cargando todos los espectáculos...');
     this.espectaculosService.buscarEspectaculos('').subscribe({
       next: (response: any[]) => {
-        this.procesarEspectaculos(response);
+        console.log('✅ Respuesta recibida:', response);
+        console.log('📊 Total de espectáculos:', response?.length || 0);
+        if (!response || response.length === 0) {
+          console.warn('⚠️ Lista vacía - Esto puede indicar que no hay datos en la BD');
+        }
+        this.procesarEspectaculos(response || []);
       },
       error: (error: any) => {
-        console.error('Error al cargar espectáculos', error);
+        console.error('❌ Error al cargar espectáculos:', error);
+        console.error('Estado HTTP:', error.status);
+        console.error('Mensaje:', error.message);
       }
     });
   }
@@ -114,16 +131,24 @@ export class EspectaculosComponent implements OnInit {
     this.artistasAgrupados = [];
     
     if (!this.busqueda.trim()) {
+      console.log('🔍 Campo vacío - Cargando todos los espectáculos');
       this.cargarTodos();
       return;
     }
     
+    console.log(`🔍 Buscando espectáculos de: "${this.busqueda}"`);
     this.espectaculosService.buscarEspectaculos(this.busqueda).subscribe({
       next: (response: any[]) => {
-        this.procesarEspectaculos(response);
+        console.log(`✅ Resultados encontrados: ${response?.length || 0}`);
+        console.log('Datos recibidos:', response);
+        if (!response || response.length === 0) {
+          console.warn(`⚠️ No se encontraron espectáculos para "${this.busqueda}"`);
+        }
+        this.procesarEspectaculos(response || []);
       },
       error: (error: any) => {
-        console.error('Error al buscar espectáculos', error);
+        console.error(`❌ Error al buscar "${this.busqueda}":`, error);
+        console.error('Estado HTTP:', error.status);
       }
     });
   }
@@ -136,15 +161,24 @@ export class EspectaculosComponent implements OnInit {
     this.artistasAgrupados = [];
     
     if (!this.escenarioSeleccionado) {
+      console.log('📍 Escenario no seleccionado - Cargando todos');
       this.cargarTodos();
       return;
     }
+    
+    console.log(`📍 Buscando espectáculos en: "${this.escenarioSeleccionado.nombre}"`);
     this.espectaculosService.getEspectaculos(this.escenarioSeleccionado).subscribe({
       next: (response: any[]) => {
-        this.procesarEspectaculos(response);
+        console.log(`✅ Encontrados ${response?.length || 0} espectáculos`);
+        console.log('Datos:', response);
+        if (!response || response.length === 0) {
+          console.warn(`⚠️ No hay espectáculos en este escenario`);
+        }
+        this.procesarEspectaculos(response || []);
       },
       error: (error: any) => {
-        console.error('Error al buscar por escenario', error);
+        console.error('❌ Error al buscar por escenario:', error);
+        console.error('Estado HTTP:', error.status);
       }
     });
   }
