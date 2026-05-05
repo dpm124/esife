@@ -54,9 +54,7 @@ export class EspectaculosComponent implements OnInit {
   private procesarEspectaculos(data: any[]) {
     const grupos = data.reduce((acc, current) => {
       if (!acc[current.artista]) {
-        // Mapear tipo de escenario con validación robusta
-        const tipoRaw = current.escenario?.tipo || 'DESCONOCIDO';
-        const tipoMapeado = this.mapearTipoEscenario(tipoRaw);
+        const tipoMapeado = this.obtenerCategoriaEscenario(current);
         
         acc[current.artista] = {
           nombre: current.artista,
@@ -90,33 +88,56 @@ export class EspectaculosComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
-  /**
-   * Mapea valores de tipo escenario a etiquetas legibles.
-   * Soporta: TEATRO, CONCIERTO, ESTADIO, DESCONOCIDO
-   */
-  private mapearTipoEscenario(tipo: string): string {
+  private obtenerCategoriaEscenario(espectaculo: any): string {
+    const tipoEscenario = this.normalizarTipoEscenarioParaNavegacion(espectaculo);
+    return this.mapearTipoEscenario(tipoEscenario);
+  }
+
+  private mapearTipoEscenario(tipo: any): string {
+    const valorNormalizado = `${tipo}`.trim().toUpperCase();
     const mapa: { [key: string]: string } = {
       'TEATRO': 'Teatro',
       'CONCIERTO': 'Concierto',
       'ESTADIO': 'Estadio',
-      'DESCONOCIDO': 'Espectáculo'
+      '1': 'Teatro',
+      '2': 'Concierto',
+      '3': 'Estadio'
     };
-    return mapa[tipo] || 'Espectáculo'; // Fallback final
+    return mapa[valorNormalizado] || 'Espectaculo';
+  }
+
+  private inferirTipoEscenarioDesdeTexto(...campos: Array<any>): 'TEATRO' | 'CONCIERTO' | 'ESTADIO' | null {
+    const texto = campos
+      .filter((campo) => typeof campo === 'string')
+      .map((campo) => `${campo}`.toUpperCase())
+      .join(' ');
+
+    if (!texto.trim()) {
+      return null;
+    }
+
+    if (texto.includes('TEATRO') || texto.includes('OBRA') || texto.includes('DRAMA') || texto.includes('COMEDIA')) {
+      return 'TEATRO';
+    }
+
+    if (texto.includes('ESTADIO') || texto.includes('ARENA') || texto.includes('PALACIO DE LOS DEPORTES')) {
+      return 'ESTADIO';
+    }
+
+    if (texto.includes('CONCIERTO') || texto.includes('AUDITORIO') || texto.includes('FESTIVAL') || texto.includes('GIRA')) {
+      return 'CONCIERTO';
+    }
+
+    return null;
   }
 
   cargarTodos() {
-    console.log('🔄 Cargando todos los espectáculos...');
     this.espectaculosService.buscarEspectaculos('').subscribe({
       next: (response: any[]) => {
-        console.log('✅ Respuesta recibida:', response);
-        console.log('📊 Total de espectáculos:', response?.length || 0);
-        if (!response || response.length === 0) {
-          console.warn('⚠️ Lista vacía - Esto puede indicar que no hay datos en la BD');
-        }
         this.procesarEspectaculos(response || []);
       },
       error: (error: any) => {
-        console.error('❌ Error al cargar espectáculos:', error);
+        console.error('Error al cargar espectaculos:', error);
         console.error('Estado HTTP:', error.status);
         console.error('Mensaje:', error.message);
       }
@@ -131,23 +152,16 @@ export class EspectaculosComponent implements OnInit {
     this.artistasAgrupados = [];
     
     if (!this.busqueda.trim()) {
-      console.log('🔍 Campo vacío - Cargando todos los espectáculos');
       this.cargarTodos();
       return;
     }
     
-    console.log(`🔍 Buscando espectáculos de: "${this.busqueda}"`);
     this.espectaculosService.buscarEspectaculos(this.busqueda).subscribe({
       next: (response: any[]) => {
-        console.log(`✅ Resultados encontrados: ${response?.length || 0}`);
-        console.log('Datos recibidos:', response);
-        if (!response || response.length === 0) {
-          console.warn(`⚠️ No se encontraron espectáculos para "${this.busqueda}"`);
-        }
         this.procesarEspectaculos(response || []);
       },
       error: (error: any) => {
-        console.error(`❌ Error al buscar "${this.busqueda}":`, error);
+        console.error(`Error al buscar "${this.busqueda}":`, error);
         console.error('Estado HTTP:', error.status);
       }
     });
@@ -161,23 +175,16 @@ export class EspectaculosComponent implements OnInit {
     this.artistasAgrupados = [];
     
     if (!this.escenarioSeleccionado) {
-      console.log('📍 Escenario no seleccionado - Cargando todos');
       this.cargarTodos();
       return;
     }
     
-    console.log(`📍 Buscando espectáculos en: "${this.escenarioSeleccionado.nombre}"`);
     this.espectaculosService.getEspectaculos(this.escenarioSeleccionado).subscribe({
       next: (response: any[]) => {
-        console.log(`✅ Encontrados ${response?.length || 0} espectáculos`);
-        console.log('Datos:', response);
-        if (!response || response.length === 0) {
-          console.warn(`⚠️ No hay espectáculos en este escenario`);
-        }
         this.procesarEspectaculos(response || []);
       },
       error: (error: any) => {
-        console.error('❌ Error al buscar por escenario:', error);
+        console.error('Error al buscar por escenario:', error);
         console.error('Estado HTTP:', error.status);
       }
     });
@@ -201,12 +208,37 @@ export class EspectaculosComponent implements OnInit {
   // --- REDIRECCIONES ---
 
   irAComprar(espectaculo: any) {
+    const tipoEscenario = this.normalizarTipoEscenarioParaNavegacion(espectaculo);
     this.router.navigate(['/comprar'], {
       queryParams: {
         idEspectaculo: espectaculo.id,
         artista: espectaculo.artista,
+        tipoEscenario,
       }
     });
+  }
+
+  private normalizarTipoEscenarioParaNavegacion(espectaculo: any): 'TEATRO' | 'CONCIERTO' | 'ESTADIO' | null {
+    const tipoRaw = espectaculo?.escenario?.tipo ?? espectaculo?.tipoEscenario ?? espectaculo?.escenarioTipo;
+    const valor = `${tipoRaw ?? ''}`.trim().toUpperCase();
+    if (valor === 'TEATRO' || valor === '1') {
+      return 'TEATRO';
+    }
+    if (valor === 'CONCIERTO' || valor === '2') {
+      return 'CONCIERTO';
+    }
+    if (valor === 'ESTADIO' || valor === '3') {
+      return 'ESTADIO';
+    }
+
+    const tipoInferido = this.inferirTipoEscenarioDesdeTexto(
+      espectaculo?.escenario?.nombre,
+      espectaculo?.artista,
+      espectaculo?.nombre,
+      espectaculo?.titulo
+    );
+
+    return tipoInferido;
   }
 
   irACola(espectaculo: any) {

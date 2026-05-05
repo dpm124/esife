@@ -30,6 +30,11 @@ export class EspectaculosService {
     return this.http.get<any[]>(`/busqueda/getEntradasDisponibles?espectaculoId=${espectaculoId}`);
   }
 
+  // Devuelve las entradas disponibles JUNTO CON el tipo de escenario (para renderizar interfaz A o B)
+  getEntradasConEscenario(espectaculoId: any) {
+    return this.http.get<any>(`/busqueda/getEntradasConEscenario?espectaculoId=${espectaculoId}`);
+  }
+
   // Devuelve el número de entradas libres (un número, no una lista)
   getEntradasLibres(espectaculoId: any) {
     return this.http.get<number>(`/busqueda/getEntradasLibres/${espectaculoId}`);
