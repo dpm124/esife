@@ -441,3 +441,155 @@
     width: 100%;
   }
 }
+
+
+/* =========================================
+   DISEÑO DEL MAPA DE BUTACAS (VISTA PRECISA)
+   ========================================= */
+
+.mapa-teatro {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  width: 100%;
+}
+
+.planta-stage {
+  background: #2d1b69; /* Tono acorde a la imagen */
+  color: white;
+  text-align: center;
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: bold;
+  letter-spacing: 4px;
+  margin-bottom: 20px;
+  width: 100%;
+  box-shadow: inset 0 -4px 0 rgba(0,0,0,0.2);
+}
+
+.filas-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.fila-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.02); /* Sutil fondo para la fila */
+  border-radius: 8px;
+  padding: 5px;
+}
+
+.fila-indicador {
+  background: #1e1b4b;
+  color: #a78bfa;
+  padding: 10px 15px;
+  border-radius: 6px;
+  font-weight: bold;
+  white-space: nowrap;
+  min-width: 80px;
+  text-align: center;
+  border: 1px solid #2e1065;
+  flex-shrink: 0; /* Evita que el texto de la fila se aplaste */
+}
+
+/* Scroll horizontal clave para no romper la fila */
+.butacas-scroll {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 8px; /* Espacio para la barra de scroll */
+  flex-grow: 1;
+  scroll-behavior: smooth;
+  align-items: center;
+}
+
+/* Scrollbar estilizada */
+.butacas-scroll::-webkit-scrollbar {
+  height: 6px;
+}
+.butacas-scroll::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+}
+.butacas-scroll::-webkit-scrollbar-thumb {
+  background: #4c1d95;
+  border-radius: 10px;
+}
+
+/* =========================================
+   DISEÑO DEL BOTÓN DE BUTACA MINIMALISTA
+   ========================================= */
+
+.butaca-btn {
+  background: #111827; 
+  border: 1px solid #374151; 
+  border-radius: 8px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 70px; /* Tamaño más compacto */
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0; /* Evita que el botón se aplaste al hacer scroll */
+}
+
+.butaca-num {
+  font-weight: bold;
+  font-size: 1.1rem;
+  color: white;
+}
+
+.butaca-precio {
+  color: #9ca3af;
+  font-size: 0.75rem;
+  margin: 3px 0;
+}
+
+.butaca-estado {
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+}
+
+/* Estados de la butaca */
+
+.butaca-btn.disponible {
+  border-color: #22c55e;
+}
+
+.butaca-btn.disponible .butaca-estado {
+  color: #22c55e;
+}
+
+.butaca-btn.disponible:hover {
+  transform: translateY(-2px);
+  background: rgba(34, 197, 94, 0.1);
+  box-shadow: 0 4px 10px rgba(34, 197, 94, 0.15);
+}
+
+.butaca-btn.reservada {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #1f2937;
+  border-color: #ef4444; /* Rojo suave para indicar ocupada */
+}
+
+.butaca-btn.seleccionada {
+  background: #8b5cf6 !important;
+  border-color: #a78bfa !important;
+  transform: scale(1.05);
+  box-shadow: 0 0 15px rgba(139, 92, 246, 0.5);
+}
+
+.butaca-btn.seleccionada .butaca-num,
+.butaca-btn.seleccionada .butaca-precio,
+.butaca-btn.seleccionada .butaca-estado {
+  color: white !important;
+}

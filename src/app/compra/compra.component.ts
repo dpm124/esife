@@ -121,7 +121,23 @@ export class CompraComponent implements OnInit {
   }
 
   get entradasVisibles(): EntradaDTO[] {
-    return this.entradas.filter((entrada) => entrada.ubicacion?.tipo === this.vistaSeleccionada);
+    return this.entradas.filter((entrada) => {
+      // 1. Primero, verificamos que la entrada corresponda a la pestaña actual
+      const esDeEstaVista = entrada.ubicacion?.tipo === this.vistaSeleccionada;
+      
+      if (!esDeEstaVista) {
+        return false;
+      }
+
+      // 2. LÓGICA DE NEGOCIO: Filtrar ruido en zonas
+      if (this.vistaSeleccionada === 'ZONA') {
+        // En Zonas, SOLO mostramos las que se pueden comprar
+        return entrada.estado === 'DISPONIBLE';
+      }
+
+      // 3. En Butacas, mostramos TODAS para no romper el dibujo del mapa
+      return true;
+    });
   }
 
   get zonasAgrupadas(): ZonaGrupo[] {
@@ -349,7 +365,7 @@ export class CompraComponent implements OnInit {
     return typeof fila === 'number' && !Number.isNaN(fila) ? fila : 0;
   }
 
-  private obtenerNumeroButaca(entrada: EntradaDTO): number {
+  public obtenerNumeroButaca(entrada: EntradaDTO): number {
     const butaca = entrada.ubicacion.butaca ?? entrada.ubicacion.columna;
     return typeof butaca === 'number' && !Number.isNaN(butaca) ? butaca : 0;
   }
