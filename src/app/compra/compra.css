@@ -4,49 +4,92 @@
   box-sizing: border-box;
 }
 
-.page {
+.compra {
   min-height: 100vh;
   background-color: #0a0a0a;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   color: #ffffff;
+  padding: 32px 20px 60px;
 }
 
-.navbar {
+.compra__content {
+  max-width: 1200px;
+  margin: 0 auto;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 40px;
-  background-color: #111111;
-  border-bottom: 1px solid #222;
-}
-
-.logo {
-  font-size: 1.4rem;
-  font-weight: 700;
-  color: #ffffff;
-  letter-spacing: 1px;
+  flex-direction: column;
+  gap: 24px;
 }
 
 .content {
-  max-width: 900px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 40px 20px;
 }
 
-.event-header {
-  margin-bottom: 30px;
+.back-btn {
+  align-self: flex-start;
+  background-color: transparent;
+  border: 1px solid #2b2b2b;
+  color: #d6d6d6;
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
 }
 
-.event-header h1 {
-  font-size: 2rem;
-  font-weight: 800;
+.back-btn:hover {
+  border-color: #7c3aed;
   color: #ffffff;
 }
 
+.event-header {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 18px;
+}
+
+.event-header h1 {
+  font-size: clamp(1.9rem, 3vw, 2.6rem);
+  font-weight: 800;
+}
+
 .event-header p {
-  color: #999;
-  margin-top: 6px;
+  color: #a1a1a1;
   font-size: 1rem;
+}
+
+.selector-vista {
+  display: inline-flex;
+  gap: 10px;
+  padding: 6px;
+  margin-bottom: 28px;
+  background: linear-gradient(180deg, rgba(17, 17, 17, 0.96), rgba(12, 12, 12, 0.96));
+  border: 1px solid #222;
+  border-radius: 999px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.28);
+}
+
+.vista-btn {
+  border: 1px solid transparent;
+  background: transparent;
+  color: #aaa;
+  padding: 10px 16px;
+  border-radius: 999px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.vista-btn.activa {
+  background-color: #7c3aed;
+  color: #ffffff;
+}
+
+.vista-btn:hover {
+  border-color: #7c3aed;
+  color: #ffffff;
 }
 
 .mensaje {
@@ -59,49 +102,10 @@
   font-weight: 500;
 }
 
-.entradas-grid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 16px;
-}
-
-.entrada-card {
-  background-color: #111111;
-  border: 1px solid #222;
-  border-radius: 12px;
-  padding: 20px;
+.boton-compra {
   display: flex;
-  flex-direction: column;
-  gap: 12px;
-  transition: border-color 0.2s, transform 0.2s;
-}
-
-.entrada-card:hover {
-  border-color: #7c3aed;
-  transform: translateY(-2px);
-}
-
-.entrada-info {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.entrada-id {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #ffffff;
-}
-
-.entrada-precio {
-  font-size: 1.3rem;
-  font-weight: 700;
-  color: #7c3aed;
-}
-
-.entrada-zona {
-  font-size: 0.85rem;
-  color: #888;
+  justify-content: center;
+  margin: 1.5rem 0;
 }
 
 .btn-primary {
@@ -114,7 +118,6 @@
   cursor: pointer;
   font-size: 0.9rem;
   transition: background 0.2s;
-  width: 100%;
 }
 
 .btn-primary:hover {
@@ -138,6 +141,257 @@
   color: #ffffff;
 }
 
+.btn-primary:disabled {
+  background-color: #444;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.boton-compra .btn-primary {
+  padding: 0.9rem 2.5rem;
+  font-size: 1.1rem;
+}
+
+.entradas-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+}
+
+.entrada-zonas,
+.entrada-butacas {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.zona,
+.planta {
+  background-color: #111111;
+  border: 1px solid #232323;
+  border-radius: 18px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.zona__header,
+.planta__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+
+.zona__header h2,
+.planta__header h2 {
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.zona__sub,
+.planta__sub {
+  color: #8d8d8d;
+  font-size: 0.95rem;
+  margin-top: 4px;
+}
+
+.zona__badge,
+.planta__badge {
+  background-color: rgba(124, 58, 237, 0.15);
+  border: 1px solid rgba(124, 58, 237, 0.4);
+  color: #cbb1ff;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+}
+
+.zona__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.entrada-card {
+  background: linear-gradient(180deg, rgba(21, 21, 21, 0.98), rgba(13, 13, 13, 0.98));
+  border: 1px solid #222;
+  border-radius: 18px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+  text-align: left;
+}
+
+.entrada-card.seleccionada {
+  border-color: #7c3aed;
+  box-shadow: 0 0 0 1px rgba(124, 58, 237, 0.4);
+}
+
+.entrada-card:hover {
+  border-color: #7c3aed;
+  transform: translateY(-3px);
+  box-shadow: 0 18px 36px rgba(124, 58, 237, 0.12);
+}
+
+.entrada-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.entrada-id {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.entrada-precio {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #7c3aed;
+}
+
+.entrada-ubicacion {
+  font-size: 0.85rem;
+  color: #c4b5fd;
+  line-height: 1.35;
+}
+
+.entrada-estado {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+.entrada-estado.disponible {
+  color: #4caf50;
+}
+
+.entrada-estado.no-disponible,
+.entrada-estado.reservada {
+  color: #f44336;
+}
+
+.reservar-btn {
+  background-color: #7c3aed;
+  color: #ffffff;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.reservar-btn:hover {
+  background-color: #6d28d9;
+}
+
+.reservar-btn:disabled {
+  background-color: #444;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.planta__filas {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.fila {
+  display: grid;
+  grid-template-columns: minmax(80px, 120px) 1fr;
+  gap: 16px;
+  align-items: center;
+}
+
+.fila__titulo {
+  font-weight: 600;
+  color: #bdbdbd;
+}
+
+.fila__butacas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
+  gap: 10px;
+}
+
+.butaca {
+  background-color: #1b1b1b;
+  border: 1px solid #2f2f2f;
+  color: #e5e5e5;
+  padding: 10px 0;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.2s, transform 0.2s;
+}
+
+.butaca:hover {
+  border-color: #7c3aed;
+  transform: translateY(-1px);
+}
+
+.butaca--ocupada {
+  background-color: #2b2b2b;
+  border-color: #2b2b2b;
+  color: #777;
+  cursor: not-allowed;
+}
+
+.butaca--seleccionada {
+  border-color: #7c3aed;
+  color: #ffffff;
+  box-shadow: 0 0 0 1px rgba(124, 58, 237, 0.35);
+}
+
+.butaca--ocupada:hover {
+  border-color: #2b2b2b;
+  transform: none;
+}
+
+.compra__acciones {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.mensaje-reserva {
+  background-color: #132714;
+  border: 1px solid #2d6a2d;
+  color: #4caf50;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+.compra-btn {
+  background-color: #7c3aed;
+  color: #ffffff;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.compra-btn:hover {
+  background-color: #6d28d9;
+}
+
+.compra-btn:disabled {
+  background-color: #444;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 .no-data {
   text-align: center;
   color: #666;
@@ -145,31 +399,317 @@
   font-size: 1.1rem;
 }
 
-.entrada-estado.disponible {
-  color: #4caf50;
-  font-size: 0.8rem;
-  font-weight: 600;
+.grupo-zona,
+.planta-panel {
+  background: radial-gradient(circle at top left, rgba(124, 58, 237, 0.12), transparent 35%),
+    linear-gradient(180deg, rgba(17, 17, 17, 0.96), rgba(11, 11, 11, 0.98));
+  border: 1px solid #262626;
+  border-radius: 24px;
+  padding: 22px;
+  margin-bottom: 24px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.3);
 }
 
-.entrada-estado.reservada {
-  color: #f44336;
-  font-size: 0.8rem;
-  font-weight: 600;
-}
-
-.btn-primary:disabled {
-  background-color: #444;
-  cursor: not-allowed;
-  opacity: 0.5;
-}
-
-.boton-compra {
+.grupo-zona-header,
+.planta-header {
   display: flex;
-  justify-content: center;
-  margin: 1.5rem 0;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+  margin-bottom: 18px;
 }
 
-.boton-compra .btn-primary {
-  padding: 0.9rem 2.5rem;
+.grupo-kicker {
+  color: #a78bfa;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-bottom: 6px;
+}
+
+.grupo-zona h2,
+.planta-header h2 {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.grupo-badge {
+  background-color: rgba(124, 58, 237, 0.14);
+  color: #ddd6fe;
+  border: 1px solid rgba(124, 58, 237, 0.3);
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.zona-grid {
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+}
+
+.zona-card {
+  min-height: 180px;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+.zona-card:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.zona-card .tarjeta-visual {
+  min-height: 112px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px;
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(124, 58, 237, 0.18), rgba(124, 58, 237, 0.04));
+  border: 1px solid rgba(124, 58, 237, 0.18);
+}
+
+.tarjeta-dato {
+  color: #ffffff;
+  font-size: 0.98rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.tarjeta-precio {
+  color: #ffffff;
+  font-size: 1.35rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.tarjeta-accion {
+  color: #c4b5fd;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.estado-destacado {
+  margin-top: auto;
+  font-size: 0.92rem !important;
+  letter-spacing: 0.04em;
+}
+
+.entrada-card.seleccionada,
+.zona-card.seleccionada {
+  border-color: #a855f7;
+  box-shadow: 0 0 0 1px rgba(168, 85, 247, 0.25), 0 20px 40px rgba(168, 85, 247, 0.14);
+}
+
+.mapa-teatro {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  width: 100%;
+}
+
+.planta-stage {
+  background: #2d1b69;
+  color: white;
+  text-align: center;
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: bold;
+  letter-spacing: 4px;
+  margin-bottom: 20px;
+  width: 100%;
+  box-shadow: inset 0 -4px 0 rgba(0, 0, 0, 0.2);
+}
+
+.filas-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.fila-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 8px;
+  padding: 5px;
+}
+
+.fila-indicador {
+  background: #1e1b4b;
+  color: #a78bfa;
+  padding: 10px 15px;
+  border-radius: 6px;
+  font-weight: bold;
+  white-space: nowrap;
+  min-width: 80px;
+  text-align: center;
+  border: 1px solid #2e1065;
+  flex-shrink: 0;
+}
+
+.butacas-scroll {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  flex-grow: 1;
+  scroll-behavior: smooth;
+  align-items: center;
+}
+
+.butacas-scroll::-webkit-scrollbar {
+  height: 6px;
+}
+
+.butacas-scroll::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+}
+
+.butacas-scroll::-webkit-scrollbar-thumb {
+  background: #4c1d95;
+  border-radius: 10px;
+}
+
+.butaca-btn {
+  background: #111827;
+  border: 1px solid #374151;
+  border-radius: 8px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 70px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.butaca-num {
+  font-weight: bold;
   font-size: 1.1rem;
+  color: white;
+}
+
+.butaca-precio {
+  color: #9ca3af;
+  font-size: 0.75rem;
+  margin: 3px 0;
+}
+
+.butaca-estado {
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+}
+
+.butaca-btn.disponible {
+  border-color: #22c55e;
+}
+
+.butaca-btn.disponible .butaca-estado {
+  color: #22c55e;
+}
+
+.butaca-btn.disponible:hover {
+  transform: translateY(-2px);
+  background: rgba(34, 197, 94, 0.1);
+  box-shadow: 0 4px 10px rgba(34, 197, 94, 0.15);
+}
+
+.butaca-btn.reservada,
+.butaca-btn.vendida,
+.butaca-btn.ocupada {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #1f2937;
+  border-color: #ef4444;
+}
+
+.butaca-btn.reservada .butaca-estado,
+.butaca-btn.vendida .butaca-estado,
+.butaca-btn.ocupada .butaca-estado {
+  color: #ef4444;
+}
+
+.butaca-btn.seleccionada {
+  background: #8b5cf6 !important;
+  border-color: #a78bfa !important;
+  transform: scale(1.05);
+  box-shadow: 0 0 15px rgba(139, 92, 246, 0.5);
+}
+
+.butaca-btn.seleccionada .butaca-num,
+.butaca-btn.seleccionada .butaca-precio,
+.butaca-btn.seleccionada .butaca-estado {
+  color: white !important;
+}
+
+@media (max-width: 768px) {
+  .zona__header,
+  .planta__header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .fila {
+    grid-template-columns: 1fr;
+  }
+
+  .compra__acciones {
+    width: 100%;
+  }
+
+  .compra-btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 900px) {
+  .content {
+    max-width: 100%;
+  }
+
+  .entradas-grid {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .content {
+    padding: 24px 16px;
+  }
+
+  .selector-vista {
+    width: 100%;
+    justify-content: space-between;
+    border-radius: 24px;
+  }
+
+  .vista-btn {
+    flex: 1;
+  }
+
+  .grupo-zona,
+  .planta-panel {
+    padding: 16px;
+  }
+
+  .zona-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .entrada-card,
+  .zona-card {
+    width: 100%;
+  }
 }

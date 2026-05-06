@@ -30,6 +30,11 @@ export class EspectaculosService {
     return this.http.get<number>(`http://localhost:8080/busqueda/getEntradasLibres/${espectaculoId}`);
   }
 
+  // Devuelve las entradas disponibles junto con el tipo de escenario
+  getEntradasConEscenario(espectaculoId: any) {
+    return this.http.get<any>(`http://localhost:8080/busqueda/getEntradasConEscenario?espectaculoId=${espectaculoId}`);
+  }
+
   reservarEntrada(entradaId: number) {
     return this.http.put('http://localhost:8080/reservas/reservar?entradaId=' + entradaId, {}, { responseType: 'text' });
   }

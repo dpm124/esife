@@ -4,6 +4,13 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
+export interface DtoRespuestaValidacionPasswd {
+  strong: boolean;
+  score: number;
+  warning: string;
+  suggestions: string[];
+}
+
 @Component({
   selector: 'app-login',
   imports: [CommonModule, FormsModule],
@@ -11,15 +18,17 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './login.css',
 })
 export class LoginComponent implements OnInit {
-  
+
   tokenReservaEntrada: string | null = null
   name: string = '';
   pwd: string = '';
+  mostrarPwd: boolean = false;
   mensaje: string | null = null;
   exito: boolean = false;
   modoRegistro: boolean = false;
   idEspectaculo: string | null = null;
   artista: string | null = null;
+  passwordFeedback: DtoRespuestaValidacionPasswd | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -40,7 +49,12 @@ export class LoginComponent implements OnInit {
   }
 
   login() {
-    this.http.post('http://localhost:8081/users/login', { name: this.name, pwd: this.pwd }, { responseType: 'text' }).subscribe({
+    if (!this.isEmailValid()) {
+      this.mensaje = 'Introduce un email válido (ejemplo: usuario@dominio.com)';
+      this.cdr.detectChanges();
+      return;
+    }
+    this.http.post('http://localhost:8081/users/login', { name: this.name, pwd: this.pwd, password: this.pwd }, { responseType: 'text' }).subscribe({
       next: (tokenUsuario: string) => {
         localStorage.setItem('tokenUsuario', tokenUsuario);
         localStorage.setItem('emailUsuario', this.name);
@@ -63,10 +77,14 @@ export class LoginComponent implements OnInit {
           }
         },
         error: (error: any) => {
-          if (error.status === 404) {
+          if (error.status === 0) {
+            this.mensaje = '❌ No se pudo conectar con el servidor de usuarios.';
+          } else if (error.status === 404) {
             this.mensaje = 'El usuario no existe. Por favor, regístrate primero.';
-          } else {
+          } else if (error.status === 401) {
             this.mensaje = 'Usuario o contraseña incorrectos.';
+          } else {
+            this.mensaje = 'Error al conectar con el servidor.';
           }
           this.cdr.detectChanges();
         }
@@ -74,7 +92,12 @@ export class LoginComponent implements OnInit {
     }
 
   registrar() {
-    this.http.post('http://localhost:8081/users/registrar', { name: this.name, pwd: this.pwd }, { responseType: 'text' }).subscribe({
+    if (!this.isEmailValid()) {
+      this.mensaje = 'Introduce un email válido (ejemplo: usuario@dominio.com)';
+      this.cdr.detectChanges();
+      return;
+    }
+    this.http.post('http://localhost:8081/users/registrar', { name: this.name, pwd: this.pwd, password: this.pwd }, { responseType: 'text' }).subscribe({
       next: () => {
         this.mensaje = 'Registro exitoso. Ahora puedes iniciar sesión.';
         this.modoRegistro = false;
@@ -83,8 +106,14 @@ export class LoginComponent implements OnInit {
         this.exito = true;
       },
       error: (error: any) => {
-        this.mensaje = error.status === 409 ? 'El usuario ya existe.' : 'Error al registrar el usuario.';
-        this.modoRegistro = false;
+        console.error('Error registrar usuario:', error);
+        if (error.status === 0) {
+          this.mensaje = '❌ No se pudo conectar con el servidor de usuarios.';
+        } else if (error.status === 409) {
+          this.mensaje = 'El usuario ya existe.';
+        } else {
+          this.mensaje = error.error?.message || error.statusText || 'Error al registrar el usuario.';
+        }
         this.cdr.detectChanges();
       }
     });
@@ -102,5 +131,66 @@ export class LoginComponent implements OnInit {
 
   irARecuperar() {
     this.router.navigate(['/recuperar']);
+  }
+
+  isEmailValid(): boolean {
+    const re = /\S+@\S+\.\S+/;
+    return re.test(this.name);
+  }
+
+  togglePasswordVisibility() {
+    this.mostrarPwd = !this.mostrarPwd;
+  }
+
+  calculatePasswordStrengthLocal(pwd: string): DtoRespuestaValidacionPasswd {
+    let score = 0;
+    let warning = '';
+    const suggestions: string[] = [];
+
+    if (pwd.length < 6) {
+      warning = 'Demasiado corta (mínimo 6 caracteres)';
+      suggestions.push('Añade más caracteres');
+    } else if (pwd.length < 8) {
+      score = 0;
+      warning = 'Muy débil';
+      suggestions.push('Añade mayúsculas, números o símbolos');
+    } else {
+      score = 1;
+      if (!/[A-Z]/.test(pwd)) {
+        suggestions.push('Añade mayúsculas (A-Z)');
+      } else score++;
+
+      if (!/[0-9]/.test(pwd)) {
+        suggestions.push('Añade números (0-9)');
+      } else score++;
+
+      if (!/[^A-Za-z0-9]/.test(pwd)) {
+        suggestions.push('Añade caracteres especiales (!@#$%^&*)');
+      } else score++;
+    }
+
+    const strong = score >= 3;
+    warning = warning || (strong ? '✓ Contraseña fuerte' : 'Añade variedad de caracteres');
+    return { strong, score: Math.min(score, 4), warning, suggestions };
+  }
+
+  checkPasswordStrength() {
+    if (!this.pwd || this.pwd.length < 4) {
+      this.passwordFeedback = null;
+      return;
+    }
+    this.http.post<DtoRespuestaValidacionPasswd>('http://localhost:8081/users/validar-password',
+      { name: this.name, pwd: this.pwd, password: this.pwd }
+    ).subscribe({
+      next: (res) => {
+        this.passwordFeedback = res;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.warn('No se pudo conectar con el servidor para validar contraseña. Usando validación local.', err);
+        this.passwordFeedback = this.calculatePasswordStrengthLocal(this.pwd);
+        this.cdr.detectChanges();
+      }
+    });
   }
 }

@@ -35,7 +35,7 @@
       <div class="event-card" *ngFor="let esp of espectaculos">
         <div class="event-card-body">
           <h3>{{ esp.artista }}</h3>
-          <p class="escenario">📍 {{ esp.escenario }}</p>
+          <p class="escenario">📍 {{ esp.escenario?.nombre }}</p>
           <p class="fecha">📅 {{ esp.fecha | date:'dd/MM/yyyy HH:mm' }}</p>
           <p *ngIf="esp.fechaAperturaTaquilla" class="taquilla">
             🕐 Taquilla abre: {{ esp.fechaAperturaTaquilla | date:'dd/MM/yyyy HH:mm' }}

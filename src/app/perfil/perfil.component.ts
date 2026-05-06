@@ -41,7 +41,7 @@ export class PerfilComponent implements OnInit {
     if (!password) return;
 
     this.http.post('http://localhost:8081/users/cancelar',
-      { name: this.email, pwd: password },
+      { name: this.email, pwd: password, password: password },
       { responseType: 'text' }
     ).subscribe({
       next: () => {
