@@ -60,26 +60,7 @@ export class PagoComponent implements OnInit {
         this.cdr.detectChanges(); // Forzamos actualización
         return;
       }
-
-      // Validamos el token antes de iniciar el pago
-      this.validarSesionUsuario();
-    });
-  }
-
-  validarSesionUsuario() {
-    this.pagosService.validarTokenUsuario(this.tokenUsuario).subscribe({
-      next: () => {
-        this.iniciarProcesoDePago();
-      },
-      error: (error: any) => {
-        localStorage.removeItem('tokenUsuario');
-        localStorage.removeItem('emailUsuario');
-        this.error = error?.status === 401
-          ? 'Tu sesión ha caducado antes de iniciar el pago. Vuelve a iniciar sesión.'
-          : 'No se pudo validar tu sesión. Vuelve a iniciar sesión.';
-        this.estado = 'ERROR';
-        this.cdr.detectChanges();
-      }
+      this.iniciarProcesoDePago();
     });
   }
 
