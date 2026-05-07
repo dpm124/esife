@@ -35,10 +35,17 @@ export class EspectaculosService {
     return this.http.get<any>(`http://localhost:8080/busqueda/getEntradasConEscenario?espectaculoId=${espectaculoId}`);
   }
 
-  reservarEntrada(entradaId: number) {
-    return this.http.put('http://localhost:8080/reservas/reservar?entradaId=' + entradaId, {}, { responseType: 'text' });
+  reservarEntrada(entradaId: number, tokenReservaEntrada?: string) {
+    const params = new URLSearchParams({ entradaId: String(entradaId) });
+    if (tokenReservaEntrada) {
+      params.append('tokenReservaEntrada', tokenReservaEntrada);
+    }
+    return this.http.put(
+      `http://localhost:8080/reservas/reservar?${params.toString()}`,
+      {},
+      { responseType: 'text' }
+    );
   }
-
   unirseACola(espectaculoId: number, emailUsuario: string) {
     return this.http.post('http://localhost:8080/cola/unirse', {}, {
       params: { espectaculoId, emailUsuario },

@@ -57,7 +57,7 @@ export class CompraComponent implements OnInit {
     BUTACA: false,
   };
   tokenReservaEntrada: string | null = null;
-  entradaSeleccionada: EntradaDTO | null = null;
+  entradasSeleccionadas: EntradaDTO[] = [];
   mensaje: string | null = null;
 
   constructor(
@@ -178,7 +178,7 @@ export class CompraComponent implements OnInit {
       return;
     }
     this.vistaSeleccionada = vista;
-    this.entradaSeleccionada = null;
+    this.entradasSeleccionadas = [];
     this.tokenReservaEntrada = null;
     this.mensaje = null;
     this.cdr.detectChanges();
@@ -346,22 +346,23 @@ export class CompraComponent implements OnInit {
     return a.localeCompare(b, 'es', { sensitivity: 'base' });
   }
 
-  seleccionar(entrada: EntradaDTO) {
-    if (this.entradaSeleccionada?.id === entrada.id) {
-      this.entradaSeleccionada = null;
-      this.tokenReservaEntrada = null;
+    seleccionar(entrada: EntradaDTO) {
+    const yaSeleccionada = this.entradasSeleccionadas.some((e: EntradaDTO) => e.id === entrada.id)
+
+    if (yaSeleccionada) {
+      this.entradasSeleccionadas = this.entradasSeleccionadas.filter((e: EntradaDTO) => e.id !== entrada.id);
+      if (this.entradasSeleccionadas.length === 0) {
+        this.tokenReservaEntrada = null;
+      }
       this.mensaje = 'Entrada deseleccionada.';
       this.cdr.detectChanges();
       return;
     }
-    if (this.entradaSeleccionada) {
-      this.entradaSeleccionada = null;
-      this.tokenReservaEntrada = null;
-    }
-    this.espectaculosService.reservarEntrada(entrada.id).subscribe({
+
+    this.espectaculosService.reservarEntrada(entrada.id, this.tokenReservaEntrada || undefined).subscribe({
       next: (tokenReservaEntrada: string) => {
-        this.entradaSeleccionada = entrada;
         this.tokenReservaEntrada = tokenReservaEntrada;
+        this.entradasSeleccionadas = [...this.entradasSeleccionadas, entrada];
         this.mensaje = `✓ Entrada #${entrada.id} seleccionada. Precio: ${(entrada.precio / 100).toFixed(2)} €`;
         this.cdr.detectChanges();
       },
@@ -373,7 +374,7 @@ export class CompraComponent implements OnInit {
   }
 
   estaSeleccionada(entrada: EntradaDTO): boolean {
-    return this.entradaSeleccionada?.id === entrada.id;
+    return this.entradasSeleccionadas.some(e => e.id === entrada.id);
   }
 
   volver() {
@@ -381,7 +382,7 @@ export class CompraComponent implements OnInit {
   }
 
   tramitarCompra() {
-    if (!this.tokenReservaEntrada) {
+    if (!this.tokenReservaEntrada || this.entradasSeleccionadas.length === 0) {
       this.mensaje = 'Selecciona una entrada primero.';
       this.cdr.detectChanges();
       return;
