@@ -8,6 +8,7 @@ import { Router } from '@angular/router';
   standalone: true,
   imports: [CommonModule, HttpClientModule],
   templateUrl: './perfil.html',
+  styleUrl: './perfil.css'
 })
 export class PerfilComponent implements OnInit {
   email: string = '';
@@ -57,6 +58,14 @@ export class PerfilComponent implements OnInit {
   cerrarSesion() {
     localStorage.removeItem('tokenUsuario');
     localStorage.removeItem('emailUsuario');
+    this.router.navigate(['/espectaculos']);
+  }
+
+  descargarEntradas() {
+      const url = `http://localhost:8080/compras/ticket/zip?emailUsuario=${this.email}`;
+      window.open(url, '_blank');
+  }
+  volver() {
     this.router.navigate(['/espectaculos']);
   }
 }
