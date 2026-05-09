@@ -9,7 +9,7 @@ import { ResetPassword } from './resetPassword/resetPassword.component';
 import { PerfilComponent } from './perfil/perfil.component';
 
 export const routes: Routes = [
-    { path: '', component: EspectaculosComponent }, // Para que al abrir la web salga algo
+    { path: '', component: EspectaculosComponent, pathMatch: 'full' }, // Para que al abrir la web salga algo
     { path: 'espectaculos', component: EspectaculosComponent },
     { path: 'comprar', component: CompraComponent },
     { path: 'login', component: LoginComponent },

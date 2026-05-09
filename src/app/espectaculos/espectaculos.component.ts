@@ -4,6 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { EspectaculosService } from './espectaculos.service';
 import { Router, RouterModule } from '@angular/router'; 
 
+
+const MAPA_TRADUCCION: Record<string, 'TEATRO' | 'CONCIERTO' | 'ESTADIO'> = {
+  '1': 'TEATRO', 'TEATRO': 'TEATRO', 'OBRA': 'TEATRO',
+  '2': 'CONCIERTO', 'CONCIERTO': 'CONCIERTO', 'GIRA': 'CONCIERTO',
+  '3': 'ESTADIO', 'ESTADIO': 'ESTADIO', 'ARENA': 'ESTADIO'
+};
 @Component({
   selector: 'app-espectaculos',
   standalone: true,
@@ -93,43 +99,13 @@ export class EspectaculosComponent implements OnInit {
     return this.mapearTipoEscenario(tipoEscenario);
   }
 
+  
   private mapearTipoEscenario(tipo: any): string {
-    const valorNormalizado = `${tipo}`.trim().toUpperCase();
-    const mapa: { [key: string]: string } = {
-      'TEATRO': 'Teatro',
-      'CONCIERTO': 'Concierto',
-      'ESTADIO': 'Estadio',
-      '1': 'Teatro',
-      '2': 'Concierto',
-      '3': 'Estadio'
-    };
-    return mapa[valorNormalizado] || 'Espectaculo';
+    if (!tipo) return 'Espectáculo';
+    // Ponemos la primera en mayúscula para que quede bonito (Teatro, Concierto...)
+    return tipo.charAt(0) + tipo.slice(1).toLowerCase();
   }
 
-  private inferirTipoEscenarioDesdeTexto(...campos: Array<any>): 'TEATRO' | 'CONCIERTO' | 'ESTADIO' | null {
-    const texto = campos
-      .filter((campo) => typeof campo === 'string')
-      .map((campo) => `${campo}`.toUpperCase())
-      .join(' ');
-
-    if (!texto.trim()) {
-      return null;
-    }
-
-    if (texto.includes('TEATRO') || texto.includes('OBRA') || texto.includes('DRAMA') || texto.includes('COMEDIA')) {
-      return 'TEATRO';
-    }
-
-    if (texto.includes('ESTADIO') || texto.includes('ARENA') || texto.includes('PALACIO DE LOS DEPORTES')) {
-      return 'ESTADIO';
-    }
-
-    if (texto.includes('CONCIERTO') || texto.includes('AUDITORIO') || texto.includes('FESTIVAL') || texto.includes('GIRA')) {
-      return 'CONCIERTO';
-    }
-
-    return null;
-  }
 
   cargarTodos() {
     this.espectaculosService.buscarEspectaculos('').subscribe({
@@ -219,26 +195,14 @@ export class EspectaculosComponent implements OnInit {
   }
 
   private normalizarTipoEscenarioParaNavegacion(espectaculo: any): 'TEATRO' | 'CONCIERTO' | 'ESTADIO' | null {
+    // Sacamos el valor venga de donde venga
     const tipoRaw = espectaculo?.escenario?.tipo ?? espectaculo?.tipoEscenario ?? espectaculo?.escenarioTipo;
-    const valor = `${tipoRaw ?? ''}`.trim().toUpperCase();
-    if (valor === 'TEATRO' || valor === '1') {
-      return 'TEATRO';
-    }
-    if (valor === 'CONCIERTO' || valor === '2') {
-      return 'CONCIERTO';
-    }
-    if (valor === 'ESTADIO' || valor === '3') {
-      return 'ESTADIO';
-    }
+    if (!tipoRaw) return null;
 
-    const tipoInferido = this.inferirTipoEscenarioDesdeTexto(
-      espectaculo?.escenario?.nombre,
-      espectaculo?.artista,
-      espectaculo?.nombre,
-      espectaculo?.titulo
-    );
-
-    return tipoInferido;
+    const valorKey = `${tipoRaw}`.trim().toUpperCase();
+    
+    // Si está en nuestro mapa, lo devolvemos. Si no, null.
+    return MAPA_TRADUCCION[valorKey] || null;
   }
 
   irACola(espectaculo: any) {
