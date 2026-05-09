@@ -178,7 +178,12 @@ export class PagoComponent implements OnInit {
         paymentIntentId: paymentIntent!.id,
         tokenUsuario: this.tokenUsuario
       }).subscribe({
-        next: () => {
+        next: (response: any) => {
+          if (response?.error) {
+            this.mensaje = '❌ Error al confirmar: ' + response.error;
+            this.cdr.detectChanges();
+            return;
+          }
           this.mensaje = '✓ ¡Entrada confirmada! Te hemos enviado un email.';
           this.cdr.detectChanges();
           setTimeout(() => this.router.navigate(['/espectaculos']), 3000);
