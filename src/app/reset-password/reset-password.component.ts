@@ -15,6 +15,7 @@ export class ResetPassword implements OnInit {
   pwd: string = '';
   mensaje: string | null = null;
   exito: boolean = false;
+  mostrarPwd: boolean = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -55,6 +56,10 @@ export class ResetPassword implements OnInit {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  togglePwd() {
+    this.mostrarPwd = !this.mostrarPwd;
   }
 
   volver() {
