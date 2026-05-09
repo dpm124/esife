@@ -22,18 +22,17 @@ export class Recuperar {
   ) {}
 
   enviar() {
+    this.enviado = true;
+    this.cdr.detectChanges();
     this.http.post('http://localhost:8081/users/recuperar',
       { email: this.email },
       { responseType: 'text' }
     ).subscribe({
       next: () => {
-        this.enviado = true;
         this.mensaje = 'Si el email existe, recibirás un correo con instrucciones.';
         this.cdr.detectChanges();
       },
       error: () => {
-        // Mostramos el mismo mensaje aunque haya error (no revelamos si existe el email)
-        this.enviado = true;
         this.mensaje = 'Si el email existe, recibirás un correo con instrucciones.';
         this.cdr.detectChanges();
       }

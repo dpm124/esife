@@ -1,16 +1,31 @@
-<div>
-  <h2>Recuperar contraseña</h2>
+<div class="page">
 
-  <div *ngIf="!enviado">
-    <p>Introduce tu email y te enviaremos un enlace para restablecer tu contraseña.</p>
-    <input type="email" [(ngModel)]="email" placeholder="Tu email" />
-    <br/>
-    <button (click)="enviar()">Enviar</button>
-    <button (click)="volver()">Volver al login</button>
+  <nav class="navbar">
+    <span class="logo">🎟️ ESIentradas</span>
+    <button class="btn-secondary" (click)="volver()">← Volver al login</button>
+  </nav>
+
+  <div class="content">
+    <div class="card">
+
+      <h1>Recuperar contraseña</h1>
+      <p>Introduce tu email y te enviaremos un enlace para restablecer tu contraseña.</p>
+
+      <div *ngIf="!enviado">
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input id="email" type="email" [(ngModel)]="email" placeholder="tu@ejemplo.com" />
+        </div>
+        <button class="btn-primary" (click)="enviar()" [disabled]="!email">Enviar enlace</button>
+      </div>
+
+      <div *ngIf="enviado && mensaje" class="mensaje exito">
+        ✓ {{ mensaje }}
+      </div>
+
+      <button *ngIf="enviado" class="btn-secondary full" (click)="volver()">Volver al login</button>
+
+    </div>
   </div>
 
-  <div *ngIf="enviado">
-    <p>{{ mensaje }}</p>
-    <button (click)="volver()">Volver al login</button>
-  </div>
 </div>
