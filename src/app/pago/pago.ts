@@ -2,8 +2,9 @@ import { Component, OnInit, ViewChild, ElementRef, Inject, PLATFORM_ID, ChangeDe
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HttpErrorResponse } from '@angular/common/http';
 import { loadStripe, Stripe, StripeElements } from '@stripe/stripe-js';
+import { firstValueFrom } from 'rxjs';
 import { PagosService } from './pagoService';
 
 @Component({
@@ -186,6 +187,41 @@ export class PagoComponent implements OnInit {
 
       if (!paymentIntent?.id) {
         this.error = 'No se pudo obtener el ID del pago confirmado.';
+        this.estado = 'ERROR';
+        this.cdr.detectChanges();
+        return;
+      }
+
+      // Segundo paso: avisamos al backend para que marque la entrada como VENDIDA.
+      try {
+        const resultado = await firstValueFrom(
+          this.pagosService.confirmarPago({
+            paymentIntentId: paymentIntent.id,
+            tokenUsuario: this.tokenUsuario,
+          })
+        );
+
+        if ((resultado as any)?.error) {
+          this.error = (resultado as any).error;
+          this.estado = 'ERROR';
+          this.cdr.detectChanges();
+          return;
+        }
+      } catch (confirmError: any) {
+        if (confirmError instanceof HttpErrorResponse) {
+          if (confirmError.status === 401) {
+            this.error = 'Tu sesión ha caducado antes de terminar la compra. Vuelve a iniciar sesión y repite la reserva.';
+          } else if (confirmError.status === 404) {
+            this.error = 'No se encontró la reserva o el token de compra ya no es válido.';
+          } else if (typeof confirmError.error === 'string' && confirmError.error.trim()) {
+            this.error = confirmError.error;
+          } else {
+            this.error = 'No se pudo confirmar la compra en el servidor.';
+          }
+        } else {
+          this.error = 'No se pudo confirmar la compra en el servidor.';
+        }
+
         this.estado = 'ERROR';
         this.cdr.detectChanges();
         return;
