@@ -45,9 +45,13 @@ export class ResetPassword implements OnInit {
         this.cdr.detectChanges();
       },
       error: (error: any) => {
-        this.mensaje = error.status === 401
-          ? 'El enlace ha caducado o es inválido. Solicita uno nuevo.'
-          : 'Error al cambiar la contraseña.';
+        if (error.status === 401) {
+          this.mensaje = 'El enlace ha caducado o es inválido. Solicita uno nuevo.';
+        } else if (error.status === 400) {
+          this.mensaje = 'La contraseña no es suficientemente segura. Usa mayúsculas, números y caracteres especiales.';
+        } else {
+          this.mensaje = 'Error al cambiar la contraseña. Inténtalo de nuevo.';
+        }
         this.cdr.detectChanges();
       }
     });
