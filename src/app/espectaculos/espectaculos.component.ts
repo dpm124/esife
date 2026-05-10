@@ -79,12 +79,10 @@ export class EspectaculosComponent implements OnInit {
   }
 
   irAComprar(espectaculo: any) {
-    const tipoEscenario = this.normalizarTipoEscenarioParaNavegacion(espectaculo);
     this.router.navigate(['/comprar'], {
       queryParams: {
         idEspectaculo: espectaculo.id,
         artista: espectaculo.artista,
-        tipoEscenario,
       }
     });
   }
@@ -103,43 +101,4 @@ export class EspectaculosComponent implements OnInit {
     return !!localStorage.getItem('tokenUsuario');
   }
 
-  private normalizarTipoEscenarioParaNavegacion(espectaculo: any): 'TEATRO' | 'CONCIERTO' | 'ESTADIO' | null {
-    const tipoRaw = espectaculo?.escenario?.tipo ?? espectaculo?.tipoEscenario ?? espectaculo?.escenarioTipo;
-    const valor = `${tipoRaw ?? ''}`.trim().toUpperCase();
-    if (valor === 'TEATRO' || valor === '1') {
-      return 'TEATRO';
-    }
-    if (valor === 'CONCIERTO' || valor === '2') {
-      return 'CONCIERTO';
-    }
-    if (valor === 'ESTADIO' || valor === '3') {
-      return 'ESTADIO';
-    }
-    return this.inferirTipoEscenarioDesdeTexto(
-      espectaculo?.escenario?.nombre,
-      espectaculo?.artista,
-      espectaculo?.nombre,
-      espectaculo?.titulo
-    );
-  }
-
-  private inferirTipoEscenarioDesdeTexto(...campos: Array<any>): 'TEATRO' | 'CONCIERTO' | 'ESTADIO' | null {
-    const texto = campos
-      .filter((campo) => typeof campo === 'string')
-      .map((campo) => `${campo}`.toUpperCase())
-      .join(' ');
-    if (!texto.trim()) {
-      return null;
-    }
-    if (texto.includes('TEATRO') || texto.includes('OBRA') || texto.includes('DRAMA') || texto.includes('COMEDIA')) {
-      return 'TEATRO';
-    }
-    if (texto.includes('ESTADIO') || texto.includes('ARENA') || texto.includes('PALACIO DE LOS DEPORTES')) {
-      return 'ESTADIO';
-    }
-    if (texto.includes('CONCIERTO') || texto.includes('AUDITORIO') || texto.includes('FESTIVAL') || texto.includes('GIRA')) {
-      return 'CONCIERTO';
-    }
-    return null;
-  }
 }

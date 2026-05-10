@@ -9,22 +9,6 @@
       <p *ngIf="vistaSeleccionada === 'ZONA'">Selecciona una zona</p>
     </div>
 
-    <div class="selector-vista" *ngIf="tieneAmbasVistas">
-      <button
-        class="vista-btn"
-        [class.activa]="vistaSeleccionada === 'ZONA'"
-        (click)="mostrarVista('ZONA')"
-        type="button">
-        Vista zonas
-      </button>
-      <button
-        class="vista-btn"
-        [class.activa]="vistaSeleccionada === 'BUTACA'"
-        (click)="mostrarVista('BUTACA')"
-        type="button">
-        Vista precisa
-      </button>
-    </div>
 
     <div *ngIf="mensaje" class="mensaje">{{ mensaje }}</div>
     <div class="boton-compra" *ngIf="tokenReservaEntrada">
@@ -90,7 +74,7 @@
                   [disabled]="entrada.estado !== 'DISPONIBLE' && !estaSeleccionada(entrada)"
                   (click)="seleccionar(entrada)"
                   title="{{ etiquetaTarjeta(entrada) }}">
-                  <span class="butaca-num">B-{{ obtenerNumeroButaca(entrada) || filaEntrada(entrada) }}</span>
+                  <span class="butaca-num">B-{{ obtenerNumeroButaca(entrada) }}</span>
                   <span class="butaca-precio">{{ (entrada.precio / 100).toFixed(2) }} €</span>
                   <span *ngIf="entrada.estado === 'DISPONIBLE'" class="butaca-estado">Disponible</span>
                   <span *ngIf="entrada.estado === 'RESERVADA'" class="butaca-estado">Reservada</span>
