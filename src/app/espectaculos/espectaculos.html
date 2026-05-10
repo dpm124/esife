@@ -1,1 +1,57 @@
-<p>espectaculos works!</p>
+<div class="page">
+
+  <nav class="navbar" style="display:flex; justify-content:space-between; align-items:center">
+    <span class="logo">🎟️ ESIentradas</span>
+    <div style="display:flex; gap:10px; margin-right:20px; align-items:center">
+      <ng-container *ngIf="!estaLogueado()">
+        <a routerLink="/login" style="color:white; text-decoration:none">Iniciar sesión</a>
+        <span style="color:white">|</span>
+        <a routerLink="/login" [queryParams]="{registro: 'true'}" style="color:white; text-decoration:none">Registrarse</a>
+      </ng-container>
+      <a *ngIf="estaLogueado()" routerLink="/perfil" style="color:white; text-decoration:none">Mi perfil</a>
+    </div>
+  </nav>
+
+  <div class="hero">
+    <h1>Encuentra tu próximo espectáculo</h1>
+
+    <div class="filters">
+      <div class="search-bar">
+        <input type="text" [(ngModel)]="busqueda" placeholder="Buscar artista..." (keyup.enter)="buscarPorArtista()" />
+        <button class="btn-primary" (click)="buscarPorArtista()">Buscar</button>
+      </div>
+
+      <div class="escenario-filter">
+        <select [(ngModel)]="escenarioSeleccionado" (change)="buscarPorEscenario()">
+          <option [ngValue]="null">Todos los escenarios</option>
+          <option *ngFor="let esc of escenarios" [ngValue]="esc">{{ esc.nombre }}</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="events-grid">
+      <div class="event-card" *ngFor="let esp of espectaculos">
+        <div class="event-card-body">
+          <h3>{{ esp.artista }}</h3>
+          <p class="escenario">📍 {{ esp.escenario?.nombre }}</p>
+          <p class="fecha">📅 {{ esp.fecha | date:'dd/MM/yyyy HH:mm' }}</p>
+          <p *ngIf="esp.fechaAperturaTaquilla" class="taquilla">
+            🕐 Taquilla abre: {{ esp.fechaAperturaTaquilla | date:'dd/MM/yyyy HH:mm' }}
+          </p>
+        </div>
+        <div class="event-card-footer">
+          <button *ngIf="!esp.fechaAperturaTaquilla" class="btn-primary small" (click)="irAComprar(esp)">
+            Ver entradas →
+          </button>
+          <button *ngIf="esp.fechaAperturaTaquilla" class="btn-secondary small" (click)="irACola(esp)">
+            Unirse a la cola →
+          </button>
+        </div>
+      </div>
+    </div>
+    <p *ngIf="espectaculos.length === 0 && buscado" class="no-data">No se encontraron espectáculos.</p>
+  </div>
+
+</div>

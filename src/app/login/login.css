@@ -1,0 +1,229 @@
+.page {
+  min-height: 100vh;
+  background-color: #0a0a0a;
+  color: #f0f0f0;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background-color: #111;
+  border-bottom: 1px solid #222;
+}
+
+.logo {
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: #7c3aed;
+}
+
+.content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 65px);
+  padding: 2rem;
+}
+
+.login-card {
+  background-color: #111;
+  border: 1px solid #222;
+  border-radius: 12px;
+  padding: 2.5rem;
+  width: 100%;
+  max-width: 400px;
+}
+
+.login-card h1 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.8rem;
+  color: #7c3aed;
+}
+
+.login-card p {
+  margin: 0 0 1.5rem 0;
+  color: #888;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 1.2rem;
+}
+
+label {
+  font-size: 0.9rem;
+  color: #aaa;
+}
+
+input {
+  background-color: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 0.7rem 1rem;
+  color: #f0f0f0;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+input:focus {
+  border-color: #7c3aed;
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 0.8rem;
+  background-color: #7c3aed;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-top: 0.5rem;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #6d28d9;
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: transparent;
+  border: 1px solid #444;
+  color: #aaa;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.btn-secondary:hover {
+  border-color: #7c3aed;
+  color: #f0f0f0;
+}
+
+.mensaje {
+  padding: 0.8rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.2rem;
+  background-color: #3b0a0a;
+  color: #f87171;
+  border: 1px solid #7f1d1d;
+}
+
+.mensaje.exito {
+  background-color: #052e16;
+  color: #4ade80;
+  border-color: #14532d;
+}
+
+.btn-registro {
+  width: 100%;
+  padding: 0.6rem;
+  margin-top: 0.8rem;
+  background: transparent;
+  border: 1px solid #333;
+  color: #888;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.btn-registro:hover {
+  color: #7c3aed;
+  border-color: #7c3aed;
+}
+
+.btn-link {
+  background: none;
+  border: none;
+  color: #7c3aed;
+  cursor: pointer;
+  font-size: inherit;
+  padding: 0;
+  margin-left: 0.3rem;
+  text-decoration: underline;
+}
+
+.password-wrapper {
+  position: relative;
+}
+
+.password-wrapper input {
+  width: 100%;
+  padding-right: 3rem;
+  box-sizing: border-box;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 0.7rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  color: #aaa;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0.2rem;
+}
+
+.password-toggle:hover {
+  color: #f0f0f0;
+}
+
+.password-feedback-box {
+  margin-top: 10px;
+  padding: 12px;
+  background-color: rgba(255, 152, 0, 0.1);
+  border-left: 4px solid #ff9800;
+  border-radius: 4px;
+}
+
+.warning-text {
+  color: #ff9800;
+  font-weight: bold;
+  font-size: 0.9rem;
+  margin: 0 0 5px 0;
+}
+
+.password-feedback-box ul {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 0.8rem;
+  color: #ccc;
+}
+
+/* Barra de fuerza de contraseña */
+.strength-bar {
+  margin-top: 8px;
+  height: 10px;
+  background: #191919;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid #2a2a2a;
+}
+
+.strength-bar .bar-fill {
+  height: 100%;
+  width: 0%;
+  transition: width 220ms ease-in-out, background 220ms ease-in-out;
+  background: linear-gradient(90deg, #ff4d4d, #ffb84d, #a3e635, #4ade80);
+}
+
+.strength-bar[data-score="0"] .bar-fill { background: #ff4d4d; }
+.strength-bar[data-score="1"] .bar-fill { background: linear-gradient(90deg,#ff7b59,#ffb84d); }
+.strength-bar[data-score="2"] .bar-fill { background: linear-gradient(90deg,#ffb84d,#facc15); }
+.strength-bar[data-score="3"] .bar-fill { background: linear-gradient(90deg,#a3e635,#4ade80); }
+.strength-bar[data-score="4"] .bar-fill { background: linear-gradient(90deg,#4ade80,#10b981); }

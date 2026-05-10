@@ -1,0 +1,132 @@
+.pago-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+  background-color: #f9fafb;
+  padding: 20px;
+}
+
+.pago-card {
+  background: white;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  width: 100%;
+  max-width: 450px;
+  text-align: center;
+}
+
+.subtitulo {
+  color: #6b7280;
+  margin-bottom: 20px;
+}
+
+.stripe-container {
+  padding: 15px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background-color: #ffffff;
+  margin-bottom: 20px;
+  min-height: 20px; /* Importante para que Stripe tenga espacio inicial */
+}
+
+.stripe-row {
+  margin-bottom: 16px;
+  text-align: left;
+}
+
+.stripe-row label,
+.stripe-col label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 6px;
+}
+
+.stripe-field {
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  background-color: #f9fafb;
+  min-height: 40px;
+}
+
+.stripe-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  background-color: #f9fafb;
+  font-size: 14px;
+  box-sizing: border-box;
+  outline: none;
+}
+
+.stripe-input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.stripe-row-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.stripe-col {
+  text-align: left;
+}
+
+.alerta {
+  padding: 15px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  font-weight: 500;
+}
+
+.info { background-color: #eff6ff; color: #1d4ed8; }
+.warning { background-color: #fef3c7; color: #b45309; }
+.success { background-color: #ecfdf5; color: #047857; }
+.error { background-color: #fef2f2; color: #b91c1c; }
+
+.acciones {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.btn {
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  border: none;
+  width: 100%;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background-color: #2563eb;
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #1d4ed8;
+}
+
+.btn-outline {
+  background-color: white;
+  border: 1px solid #d1d5db;
+  color: #374151;
+}
+
+.btn-outline:hover:not(:disabled) {
+  background-color: #f3f4f6;
+}

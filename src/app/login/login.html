@@ -1,0 +1,87 @@
+<div class="page">
+
+  <nav class="navbar">
+    <span class="logo">🎟️ ESIentradas</span>
+    <button class="btn-secondary" (click)="volver()">← Volver</button>
+  </nav>
+
+  <div class="content">
+
+    <div class="login-card">
+
+      <h1>{{ modoRegistro ? 'Crear cuenta' : 'Iniciar sesión' }}</h1>
+      <p>{{ tokenReservaEntrada ? (modoRegistro ? 'Regístrate para completar tu compra' : 'Identifícate para completar tu compra') : (modoRegistro ? 'Crea tu cuenta' : 'Bienvenido de nuevo') }}</p>
+
+      <div *ngIf="mensaje" class="mensaje" [class.exito]="exito">
+        {{ mensaje }}
+        <span *ngIf="!modoRegistro && mensaje && mensaje.includes('¿No tienes cuenta?')">
+          <button class="btn-link" (click)="activarModoRegistro()">Regístrate aquí</button>
+        </span>
+      </div>
+
+      <!-- FORMULARIO DE LOGIN -->
+      <form *ngIf="!exito && !modoRegistro" (ngSubmit)="login()">
+        <div class="form-group">
+          <label for="name">Email</label>
+          <input id="name" type="email" [(ngModel)]="name" name="name" placeholder="tu@ejemplo.com" required />
+        </div>
+        <div class="form-group">
+          <label for="pwd">Contraseña</label>
+          <div class="password-wrapper">
+            <input id="pwd" [type]="mostrarPwd ? 'text' : 'password'" [(ngModel)]="pwd" name="pwd" placeholder="Tu contraseña" autocomplete="off" required />
+            <button type="button" class="password-toggle" (click)="togglePasswordVisibility()" [attr.aria-label]="mostrarPwd ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+              {{ mostrarPwd ? '🙈' : '👁️' }}
+            </button>
+          </div>
+        </div>
+        <button type="submit" class="btn-primary" [disabled]="!name || !pwd || !isEmailValid()">{{ tokenReservaEntrada ? 'Completar compra' : 'Iniciar sesión' }}</button>
+        <button type="button" class="btn-registro" (click)="activarModoRegistro()">¿No tienes cuenta? Regístrate</button>
+        <button type="button" class="btn-link" (click)="irARecuperar()">¿Olvidaste tu contraseña?</button>
+      </form>
+
+      <!-- FORMULARIO DE REGISTRO CON VALIDACIÓN DE SEGURIDAD -->
+      <form *ngIf="!exito && modoRegistro" (ngSubmit)="registrar()">
+        <div class="form-group">
+          <label for="nameReg">Email</label>
+          <input id="nameReg" type="email" [(ngModel)]="name" name="name" placeholder="tu@ejemplo.com" required />
+        </div>
+        <div class="form-group">
+          <label for="pwdReg">Contraseña</label>
+          <div class="password-wrapper">
+            <input id="pwdReg"
+                   [type]="mostrarPwd ? 'text' : 'password'"
+                   [(ngModel)]="pwd"
+                   name="pwd"
+                   (ngModelChange)="checkPasswordStrength()"
+                   placeholder="Elige una contraseña segura"
+                   autocomplete="new-password"
+                   required />
+            <button type="button" class="password-toggle" (click)="togglePasswordVisibility()" [attr.aria-label]="mostrarPwd ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+              {{ mostrarPwd ? '🙈' : '👁️' }}
+            </button>
+          </div>
+          <!-- Feedback visual: sugerencias y advertencias -->
+          <div *ngIf="passwordFeedback && !passwordFeedback.strong" class="password-feedback-box">
+            <p class="warning-text">⚠️ {{ passwordFeedback.warning || 'Contraseña poco segura' }}</p>
+            <ul *ngIf="passwordFeedback.suggestions && passwordFeedback.suggestions.length > 0">
+              <li *ngFor="let sug of passwordFeedback.suggestions">{{ sug }}</li>
+            </ul>
+          </div>
+          <!-- Barra de fuerza de contraseña -->
+          <div *ngIf="pwd && passwordFeedback" class="strength-bar" [attr.data-score]="passwordFeedback.score">
+            <div class="bar-fill" [style.width.%]="(passwordFeedback.score + 1) * 20"></div>
+          </div>
+        </div>
+        <button type="submit" class="btn-primary" [disabled]="!name || !pwd || !isEmailValid() || !passwordFeedback || !passwordFeedback.strong">
+          Crear cuenta
+        </button>
+        <button type="button" class="btn-registro" (click)="modoRegistro = false; mensaje = null; passwordFeedback = null">¿Ya tienes cuenta? Inicia sesión</button>
+      </form>
+
+      <button *ngIf="exito" class="btn-secondary" (click)="volver()">Ver más espectáculos</button>
+
+    </div>
+
+  </div>
+
+</div>

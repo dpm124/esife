@@ -1,0 +1,115 @@
+<main class="compra">
+  <div class="compra__content content">
+    <button class="back-btn" (click)="volver()">← Volver</button>
+
+    <div class="event-header">
+      <h1>{{ artista || 'Espectaculo' }}</h1>
+      <p>Selecciona una entrada para comprar</p>
+      <p *ngIf="vistaSeleccionada === 'BUTACA'">Selecciona tu butaca: planta, fila y butaca</p>
+      <p *ngIf="vistaSeleccionada === 'ZONA'">Selecciona una zona</p>
+    </div>
+
+    <div class="selector-vista" *ngIf="tieneAmbasVistas">
+      <button
+        class="vista-btn"
+        [class.activa]="vistaSeleccionada === 'ZONA'"
+        (click)="mostrarVista('ZONA')"
+        type="button">
+        Vista zonas
+      </button>
+      <button
+        class="vista-btn"
+        [class.activa]="vistaSeleccionada === 'BUTACA'"
+        (click)="mostrarVista('BUTACA')"
+        type="button">
+        Vista precisa
+      </button>
+    </div>
+
+    <div *ngIf="mensaje" class="mensaje">{{ mensaje }}</div>
+    <div class="boton-compra" *ngIf="tokenReservaEntrada">
+      <button class="btn-primary" (click)="tramitarCompra()">Tramitar compra →</button>
+    </div>
+
+    <ng-container *ngIf="vistaSeleccionada === 'ZONA'; else vistaPrecisa">
+      <div *ngIf="zonasAgrupadas.length > 0; else sinEntradasVista">
+        <section class="grupo-zona" *ngFor="let grupo of zonasAgrupadas">
+          <div class="grupo-zona-header">
+            <div>
+              <p class="grupo-kicker">Zona</p>
+              <h2>{{ grupo.nombre }}</h2>
+            </div>
+            <span class="grupo-badge">{{ grupo.entradas.length }} entradas</span>
+          </div>
+          <div class="entradas-grid zona-grid">
+            <button
+              type="button"
+              class="entrada-card zona-card"
+              *ngFor="let entrada of grupo.entradas"
+              [class.seleccionada]="estaSeleccionada(entrada)"
+              (click)="seleccionar(entrada)"
+              [disabled]="entrada.estado !== 'DISPONIBLE' && !estaSeleccionada(entrada)">
+              <div class="tarjeta-visual">
+                <span class="tarjeta-dato">{{ etiquetaTarjeta(entrada) }}</span>
+                <span class="tarjeta-precio">{{ (entrada.precio / 100).toFixed(2) }} €</span>
+                <span class="entrada-estado estado-destacado" [class.disponible]="entrada.estado === 'DISPONIBLE'" [class.reservada]="entrada.estado !== 'DISPONIBLE'">
+                  {{ entrada.estado }}
+                </span>
+              </div>
+              <span class="tarjeta-accion">{{ estaSeleccionada(entrada) ? 'Deseleccionar' : 'Seleccionar' }}</span>
+            </button>
+          </div>
+        </section>
+      </div>
+    </ng-container>
+
+    <ng-template #vistaPrecisa>
+      <div class="mapa-teatro" *ngIf="plantasAgrupadas.length > 0; else sinEntradasVista">
+        <section class="planta-panel" *ngFor="let planta of plantasAgrupadas">
+          <div class="planta-header">
+            <div>
+              <p class="grupo-kicker">Planta</p>
+              <h2>{{ planta.planta }}</h2>
+            </div>
+            <span class="grupo-badge">{{ planta.filas.length }} filas · {{ butacasDisponiblesPorPlanta(planta) }} butacas disponibles</span>
+          </div>
+          <div class="planta-stage">ESCENARIO</div>
+          <div class="filas-container">
+            <div class="fila-wrapper" *ngFor="let fila of planta.filas">
+              <div class="fila-indicador">Fila {{ fila.fila }}</div>
+              <div class="butacas-scroll">
+                <button
+                  type="button"
+                  class="butaca-btn"
+                  *ngFor="let entrada of fila.entradas"
+                  [class.seleccionada]="estaSeleccionada(entrada)"
+                  [class.disponible]="entrada.estado === 'DISPONIBLE'"
+                  [class.reservada]="entrada.estado === 'RESERVADA'"
+                  [class.vendida]="entrada.estado === 'VENDIDA'"
+                  [class.ocupada]="entrada.estado !== 'DISPONIBLE' && entrada.estado !== 'RESERVADA' && entrada.estado !== 'VENDIDA'"
+                  [disabled]="entrada.estado !== 'DISPONIBLE' && !estaSeleccionada(entrada)"
+                  (click)="seleccionar(entrada)"
+                  title="{{ etiquetaTarjeta(entrada) }}">
+                  <span class="butaca-num">B-{{ obtenerNumeroButaca(entrada) || filaEntrada(entrada) }}</span>
+                  <span class="butaca-precio">{{ (entrada.precio / 100).toFixed(2) }} €</span>
+                  <span *ngIf="entrada.estado === 'DISPONIBLE'" class="butaca-estado">Disponible</span>
+                  <span *ngIf="entrada.estado === 'RESERVADA'" class="butaca-estado">Reservada</span>
+                  <span *ngIf="entrada.estado === 'VENDIDA'" class="butaca-estado">Vendida</span>
+                  <span *ngIf="entrada.estado !== 'DISPONIBLE' && entrada.estado !== 'RESERVADA' && entrada.estado !== 'VENDIDA'" class="butaca-estado">
+                    {{ entrada.estado }}
+                  </span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </ng-template>
+
+    <ng-template #sinEntradasVista>
+      <p *ngIf="entradas.length > 0" class="no-data">No hay entradas para esta vista.</p>
+    </ng-template>
+
+    <p *ngIf="entradas.length === 0" class="no-data">No hay entradas disponibles.</p>
+  </div>
+</main>

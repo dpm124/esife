@@ -1,0 +1,47 @@
+<div class="page">
+  <nav class="navbar">
+    <span class="logo">ESIentradas</span>
+    <span class="nav-email">{{ email }}</span>
+  </nav>
+
+  <div class="content">
+    <div class="profile-header">
+      <h1>Mi perfil</h1>
+      <p class="subtitle">Gestiona tu cuenta y tus entradas</p>
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <h2>Mis entradas compradas</h2>
+        <button class="btn-secondary" (click)="descargarEntradas()" *ngIf="entradas.length > 0">
+          ⬇ Descargar todas
+        </button>
+      </div>
+
+      <div *ngIf="entradas.length === 0 && !mensaje" class="no-data">
+        <p>No tienes entradas compradas todavía.</p>
+      </div>
+
+      <div class="entradas-grid">
+        <div class="entrada-card" *ngFor="let e of entradas">
+          <div class="entrada-card-body">
+            <h3>{{ e.artista }}</h3>
+            <p class="entrada-detalle">📅 {{ e.fecha }}</p>
+            <p class="entrada-detalle">🎫 ID: {{ e.id }}</p>
+          </div>
+          <div class="entrada-card-footer">
+            <span class="precio">{{ e.precio }} €</span>
+          </div>
+        </div>
+      </div>
+
+      <p class="mensaje-error" *ngIf="mensaje">{{ mensaje }}</p>
+    </div>
+
+    <div class="actions">
+      <button class="btn-primary" (click)="volver()">Volver</button>
+      <button class="btn-secondary" (click)="cerrarSesion()">Cerrar sesión</button>
+      <button class="btn-danger" (click)="cancelarCuenta()">Cancelar cuenta</button>
+    </div>
+  </div>
+</div>
