@@ -21,6 +21,7 @@ interface EntradaDTO {
   emailComprador?: string | null;
   nombreEspectaculo: string;
   ubicacion: EntradaUbicacion;
+  tipoEscenario?: string;
 }
 
 interface ZonaGrupo {
@@ -38,14 +39,12 @@ interface PlantaGrupo {
   filas: FilaGrupo[];
 }
 
-
 @Component({
   selector: 'app-compra',
   imports: [CommonModule, FormsModule],
   templateUrl: './compra.html',
   styleUrl: './compra.css',
 })
-
 export class CompraComponent implements OnInit {
   idEspectaculo: string | null = null;
   artista: string | null = null;
@@ -54,10 +53,7 @@ export class CompraComponent implements OnInit {
   vistaForzadaPorEscenario: 'ZONA' | 'BUTACA' | null = null;
   entradas: EntradaDTO[] = [];
   vistaSeleccionada: 'ZONA' | 'BUTACA' = 'ZONA';
-  vistasDisponibles = {
-    ZONA: false,
-    BUTACA: false,
-  };
+  
   tokenReservaEntrada: string | null = null;
   entradaSeleccionada: EntradaDTO | null = null;
   mensaje: string | null = null;
@@ -74,9 +70,11 @@ export class CompraComponent implements OnInit {
       this.idEspectaculo = params['idEspectaculo'];
       this.artista = params['artista'];
       this.tipoEscenarioDesdeNavegacion = this.normalizarTipoEscenario(params['tipoEscenario']);
+      
       if (params['vista'] === 'BUTACA' || params['vista'] === 'ZONA') {
         this.vistaSeleccionada = params['vista'];
       }
+      
       if (this.idEspectaculo) {
         this.cargarEntradas();
       }
@@ -84,21 +82,17 @@ export class CompraComponent implements OnInit {
   }
 
   cargarEntradas() {
-    this.espectaculosService.getEntradasConEscenario(this.idEspectaculo!).subscribe({
-      next: (response: any) => {
-        const tipoEscenarioBackend = this.normalizarTipoEscenario(response?.tipoEscenario);
-        this.entradas = response.entradas || [];
-        const tipoEscenarioPorTexto = this.inferirTipoEscenarioDesdeTexto(
-          this.artista,
-          this.entradas[0]?.nombreEspectaculo
-        );
-
-        // Si el texto indica teatro, priorizamos BUTACA incluso con datos incompletos del backend.
-        if (tipoEscenarioPorTexto === 'TEATRO') {
-          this.tipoEscenario = 'TEATRO';
-        } else {
-          this.tipoEscenario = this.tipoEscenarioDesdeNavegacion ?? tipoEscenarioBackend ?? tipoEscenarioPorTexto;
+    this.espectaculosService.getEntradasDisponibles(this.idEspectaculo!).subscribe({
+      next: (entradasBD: EntradaDTO[]) => {
+        this.entradas = entradasBD || [];
+        
+        let tipoEscenarioBackend = null;
+        if (this.entradas.length > 0 && this.entradas[0].tipoEscenario) {
+          tipoEscenarioBackend = this.normalizarTipoEscenario(this.entradas[0].tipoEscenario);
         }
+
+        this.tipoEscenario = this.tipoEscenarioDesdeNavegacion ?? tipoEscenarioBackend;
+
         const vistasDetectadas = {
           ZONA: this.entradas.some((entrada) => entrada.ubicacion?.tipo === 'ZONA'),
           BUTACA: this.entradas.some((entrada) => entrada.ubicacion?.tipo === 'BUTACA'),
@@ -107,10 +101,6 @@ export class CompraComponent implements OnInit {
         const vistaCorrespondiente = this.calcularVistaCorrespondiente(this.tipoEscenario, vistasDetectadas);
         this.vistaForzadaPorEscenario = vistaCorrespondiente;
         this.vistaSeleccionada = vistaCorrespondiente;
-        this.vistasDisponibles = {
-          ZONA: vistaCorrespondiente === 'ZONA',
-          BUTACA: vistaCorrespondiente === 'BUTACA',
-        };
 
         this.cdr.detectChanges();
       },
@@ -122,27 +112,18 @@ export class CompraComponent implements OnInit {
 
   get entradasVisibles(): EntradaDTO[] {
     return this.entradas.filter((entrada) => {
-      // 1. Primero, verificamos que la entrada corresponda a la pestaña actual
       const esDeEstaVista = entrada.ubicacion?.tipo === this.vistaSeleccionada;
-      
-      if (!esDeEstaVista) {
-        return false;
-      }
+      if (!esDeEstaVista) return false;
 
-      // 2. LÓGICA DE NEGOCIO: Filtrar ruido en zonas
       if (this.vistaSeleccionada === 'ZONA') {
-        // En Zonas, SOLO mostramos las que se pueden comprar
         return entrada.estado === 'DISPONIBLE';
       }
-
-      // 3. En Butacas, mostramos TODAS para no romper el dibujo del mapa
       return true;
     });
   }
 
   get zonasAgrupadas(): ZonaGrupo[] {
     const grupos = new Map<string, EntradaDTO[]>();
-
     this.entradasVisibles.forEach((entrada) => {
       const clave = this.obtenerNombreZona(entrada);
       const lista = grupos.get(clave) ?? [];
@@ -160,7 +141,6 @@ export class CompraComponent implements OnInit {
 
   get plantasAgrupadas(): PlantaGrupo[] {
     const plantas = new Map<number, Map<number, EntradaDTO[]>>();
-
     this.entradasVisibles.forEach((entrada) => {
       const planta = this.obtenerNumeroPlanta(entrada);
       const fila = this.obtenerNumeroFila(entrada);
@@ -188,78 +168,20 @@ export class CompraComponent implements OnInit {
       .sort((a, b) => a.planta - b.planta);
   }
 
-  get tieneAmbasVistas(): boolean {
-    return false;
-  }
-
-  mostrarVista(vista: 'ZONA' | 'BUTACA') {
-    if (!this.vistasDisponibles[vista]) {
-      return;
-    }
-
-    this.vistaSeleccionada = vista;
-    this.entradaSeleccionada = null;
-    this.tokenReservaEntrada = null;
-    this.mensaje = null;
-    this.cdr.detectChanges();
-  }
-
-  formatearUbicacion(entrada: EntradaDTO): string {
-    const ubicacion = entrada.ubicacion;
-
-    if (ubicacion.tipo === 'BUTACA') {
-      const planta = ubicacion.planta ?? 'sin planta';
-      const fila = ubicacion.fila ?? 'sin fila';
-      const butaca = ubicacion.butaca ?? ubicacion.columna ?? 'sin butaca';
-      return `Planta ${planta}, Fila ${fila}, Butaca ${butaca}`;
-    }
-
-    if (ubicacion.tipo === 'ZONA') {
-      return ubicacion.zona ? `Zona ${ubicacion.zona}` : ubicacion.descripcion;
-    }
-
-    return ubicacion.descripcion;
-  }
-
-  etiquetaUbicacion(entrada: EntradaDTO): string {
-    const ubicacion = entrada.ubicacion;
-
-    if (ubicacion.tipo === 'BUTACA') {
-      const planta = this.obtenerNumeroPlanta(entrada);
-      const fila = this.obtenerNumeroFila(entrada);
-      const butaca = this.obtenerNumeroButaca(entrada);
-      return `P${planta} · F${fila} · B${butaca}`;
-    }
-
-    if (ubicacion.tipo === 'ZONA') {
-      return this.obtenerNombreZona(entrada);
-    }
-
-    return ubicacion.descripcion;
-  }
-
   etiquetaTarjeta(entrada: EntradaDTO): string {
     return `Entrada #${entrada.id} | ${this.etiquetaUbicacionCorta(entrada)}`;
   }
 
   private etiquetaUbicacionCorta(entrada: EntradaDTO): string {
     const ubicacion = entrada.ubicacion;
-
     if (ubicacion.tipo === 'BUTACA') {
       const numero = this.obtenerNumeroButaca(entrada);
       return numero > 0 ? `Butaca ${numero}` : 'Butaca';
     }
-
     if (ubicacion.tipo === 'ZONA') {
       return this.obtenerNombreZona(entrada);
     }
-
     return ubicacion.descripcion;
-  }
-
-  etiquetaButaca(entrada: EntradaDTO): string {
-    const numero = this.obtenerNumeroButaca(entrada);
-    return numero > 0 ? `Butaca ${numero}` : 'Butaca';
   }
 
   butacasDisponiblesPorPlanta(planta: PlantaGrupo): number {
@@ -270,58 +192,17 @@ export class CompraComponent implements OnInit {
     return this.obtenerNumeroFila(entrada);
   }
 
-  ordenarEntradas(a: EntradaDTO, b: EntradaDTO): number {
-    return this.ordenEntrada(a) - this.ordenEntrada(b);
-  }
-
   private normalizarTipoEscenario(tipoEscenario: any): 'TEATRO' | 'CONCIERTO' | 'ESTADIO' | null {
     const valor = `${tipoEscenario ?? ''}`.trim().toUpperCase();
-    if (valor === 'TEATRO' || valor === '1') {
-      return 'TEATRO';
-    }
-    if (valor === 'CONCIERTO' || valor === '2') {
-      return 'CONCIERTO';
-    }
-    if (valor === 'ESTADIO' || valor === '3') {
-      return 'ESTADIO';
-    }
-    return null;
-  }
-
-  private inferirTipoEscenarioDesdeTexto(...campos: Array<any>): 'TEATRO' | 'CONCIERTO' | 'ESTADIO' | null {
-    const texto = campos
-      .filter((campo) => typeof campo === 'string')
-      .map((campo) => `${campo}`.toUpperCase())
-      .join(' ');
-
-    if (!texto.trim()) {
-      return null;
-    }
-
-    if (texto.includes('TEATRO') || texto.includes('OBRA') || texto.includes('DRAMA') || texto.includes('COMEDIA')) {
-      return 'TEATRO';
-    }
-
-    if (texto.includes('ESTADIO') || texto.includes('ARENA') || texto.includes('PALACIO DE LOS DEPORTES')) {
-      return 'ESTADIO';
-    }
-
-    if (texto.includes('CONCIERTO') || texto.includes('AUDITORIO') || texto.includes('FESTIVAL') || texto.includes('GIRA')) {
-      return 'CONCIERTO';
-    }
-
+    if (valor === 'TEATRO' || valor === '1') return 'TEATRO';
+    if (valor === 'CONCIERTO' || valor === '2') return 'CONCIERTO';
+    if (valor === 'ESTADIO' || valor === '3') return 'ESTADIO';
     return null;
   }
 
   private obtenerVistaForzadaPorEscenario(tipoEscenario: 'TEATRO' | 'CONCIERTO' | 'ESTADIO' | null): 'ZONA' | 'BUTACA' | null {
-    if (tipoEscenario === 'TEATRO') {
-      return 'BUTACA';
-    }
-
-    if (tipoEscenario === 'CONCIERTO' || tipoEscenario === 'ESTADIO') {
-      return 'ZONA';
-    }
-
+    if (tipoEscenario === 'TEATRO') return 'BUTACA';
+    if (tipoEscenario === 'CONCIERTO' || tipoEscenario === 'ESTADIO') return 'ZONA';
     return null;
   }
 
@@ -330,27 +211,17 @@ export class CompraComponent implements OnInit {
     vistasDetectadas: { ZONA: boolean; BUTACA: boolean }
   ): 'ZONA' | 'BUTACA' {
     const vistaPorEscenario = this.obtenerVistaForzadaPorEscenario(tipoEscenario);
-    if (vistaPorEscenario) {
-      return vistaPorEscenario;
-    }
-
-    if (vistasDetectadas.BUTACA && !vistasDetectadas.ZONA) {
-      return 'BUTACA';
-    }
-
+    if (vistaPorEscenario) return vistaPorEscenario;
+    if (vistasDetectadas.BUTACA && !vistasDetectadas.ZONA) return 'BUTACA';
     return 'ZONA';
   }
 
   private obtenerNombreZona(entrada: EntradaDTO): string {
     const zona = entrada.ubicacion.zona?.trim();
-    if (zona) {
-      return zona;
-    }
+    if (zona) return zona;
 
     const descripcion = entrada.ubicacion.descripcion?.trim();
-    if (descripcion) {
-      return descripcion.replace(/^Zona:\s*/i, '');
-    }
+    if (descripcion) return descripcion.replace(/^Zona:\s*/i, '');
 
     return 'Zona sin nombre';
   }
@@ -433,24 +304,16 @@ export class CompraComponent implements OnInit {
     }
 
     const tokenUsuario = localStorage.getItem('tokenUsuario');
+    const queryParams = {
+      tokenReservaEntrada: this.tokenReservaEntrada,
+      idEspectaculo: this.idEspectaculo,
+      artista: this.artista
+    };
+
     if (tokenUsuario) {
-      // Ya está logueado, va directo al pago
-      this.router.navigate(['/pago'], {
-        queryParams: {
-          tokenReservaEntrada: this.tokenReservaEntrada,
-          idEspectaculo: this.idEspectaculo,
-          artista: this.artista
-        }
-      });
+      this.router.navigate(['/pago'], { queryParams });
     } else {
-      // No está logueado, va al login
-      this.router.navigate(['/login'], {
-        queryParams: {
-          tokenReservaEntrada: this.tokenReservaEntrada,
-          idEspectaculo: this.idEspectaculo,
-          artista: this.artista
-        }
-      });
+      this.router.navigate(['/login'], { queryParams });
     }
   }
 }

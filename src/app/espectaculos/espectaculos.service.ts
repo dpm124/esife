@@ -25,19 +25,15 @@ export class EspectaculosService {
     return this.http.get<any[]>(`/busqueda/getEntradas?espectaculoId=${espectaculoId}`);
   }
 
-  // Devuelve solo las entradas disponibles, ya preparadas para la pantalla de compra
+  // Devuelve solo las entradas disponibles (¡Ahora ya incluyen el tipoEscenario dentro!)
   getEntradasDisponibles(espectaculoId: any) {
     return this.http.get<any[]>(`/busqueda/getEntradasDisponibles?espectaculoId=${espectaculoId}`);
   }
 
-  // Devuelve las entradas disponibles JUNTO CON el tipo de escenario (para renderizar interfaz A o B)
-  getEntradasConEscenario(espectaculoId: any) {
-    return this.http.get<any>(`/busqueda/getEntradasConEscenario?espectaculoId=${espectaculoId}`);
-  }
-
-  // Devuelve el número de entradas libres (un número, no una lista)
-  getEntradasLibres(espectaculoId: any) {
-    return this.http.get<number>(`/busqueda/getEntradasLibres/${espectaculoId}`);
+  // ¡NUEVO! Sustituye a getEntradasLibres. Llama al endpoint que mantuvimos en el Controller.
+  // Devuelve un objeto con { totales, libres, vendidas, reservadas }
+  getEstadisticasEspectaculo(espectaculoId: any) {
+    return this.http.get<any>(`/busqueda/getNumeroEntradasDto/${espectaculoId}`);
   }
 
   reservarEntrada(entradaId: number) {
@@ -60,7 +56,8 @@ export class EspectaculosService {
 
   tieneTurno(espectaculoId: number, emailUsuario: string) {
     return this.http.get<boolean>('/cola/turno', {
-      params: { espectaculoId, emailUsuario } });
+      params: { espectaculoId, emailUsuario } 
+    });
   }
 
   salirDeCola(espectaculoId: number, emailUsuario: string) {

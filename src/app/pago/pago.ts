@@ -9,7 +9,7 @@ import { PagosService } from './pagoService';
 
 @Component({
   selector: 'app-pago',
-  standalone: true, // Si usas Angular 17+ suele ser standalone, si te da error quita esta línea y asegúrate de declararlo en tu módulo
+  standalone: true,
   imports: [CommonModule, FormsModule, HttpClientModule],
   templateUrl: './pago.html',
   styleUrl: './pago.css',
@@ -18,7 +18,7 @@ export class PagoComponent implements OnInit {
   @ViewChild('cardNumberElement') cardNumberElementRef!: ElementRef;
   @ViewChild('cardExpiryElement') cardExpiryElementRef!: ElementRef;
   @ViewChild('cardCvcElement') cardCvcElementRef!: ElementRef;
-  @ViewChild('postalCodeElement') postalCodeElementRef!: ElementRef;
+  // ELIMINADO EL @ViewChild DEL CÓDIGO POSTAL
 
   tokenReservaEntrada: string = '';
   tokenUsuario: string = '';
@@ -37,130 +37,116 @@ export class PagoComponent implements OnInit {
   cardNumberElement: any = null;
   cardExpiryElement: any = null;
   cardCvcElement: any = null;
-  postalCodeElement: any = null;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private pagosService: PagosService,
     @Inject(PLATFORM_ID) private platformId: object,
-    private cdr: ChangeDetectorRef // ✓ AÑADIDO: Para obligar a Angular a refrescar la pantalla
+    private cdr: ChangeDetectorRef 
   ) {}
 
   ngOnInit() {
+    console.log("🚀 0. Componente Pago cargado. Leyendo URL...");
+    
     this.route.queryParams.subscribe(params => {
       this.tokenReservaEntrada = params['tokenReservaEntrada'];
       this.idEspectaculo = params['idEspectaculo'];
       this.artista = params['artista'];
 
+      console.log("🎫 Token Reserva URL:", this.tokenReservaEntrada);
+
       this.tokenUsuario = isPlatformBrowser(this.platformId)
         ? localStorage.getItem('tokenUsuario') || ''
         : '';
 
+      console.log("👤 Token Usuario LocalStorage:", this.tokenUsuario ? "Sí hay token" : "VACÍO (¡Peligro!)");
+
       if (!this.tokenReservaEntrada || !this.tokenUsuario) {
+        console.error("❌ Abortando: Faltan tokens de sesión o reserva. ¿Has iniciado sesión?");
         this.error = 'Datos de sesión inválidos. Por favor, intenta de nuevo.';
         this.estado = 'ERROR';
-        this.cdr.detectChanges(); // Forzamos actualización
+        this.cdr.detectChanges(); 
         return;
       }
 
-      this.validarSesionUsuario();
-    });
-  }
-
-  validarSesionUsuario() {
-    this.pagosService.validarTokenUsuario(this.tokenUsuario).subscribe({
-      next: () => {
-        this.iniciarProcesoDePago();
-      },
-      error: (error: any) => {
-        localStorage.removeItem('tokenUsuario');
-        localStorage.removeItem('emailUsuario');
-        this.error = error?.status === 401
-          ? 'Tu sesión ha caducado antes de iniciar el pago. Vuelve a iniciar sesión.'
-          : 'No se pudo validar tu sesión. Vuelve a iniciar sesión.';
-        this.estado = 'ERROR';
-        this.cdr.detectChanges();
-      }
+      console.log("✅ Datos correctos. Llamando a iniciarProcesoDePago()...");
+      this.iniciarProcesoDePago();
     });
   }
 
   async iniciarProcesoDePago() {
-    // 1. Mostrar estado de carga correctamente
+    console.log("🔍 1. Iniciando proceso de pago...");
     this.estado = 'PREPARANDO';
     this.mensaje = 'Conectando con el servidor...';
-    this.cdr.detectChanges(); // Forzamos actualización visual
+    this.cdr.detectChanges(); 
 
-    // 2. Inicializar Stripe "en la sombra"
-    
-    // Clave publica jorge stripe: pk_test_51T92mIK3cuk74EClzLWy8LJUvDJSRqhi6KcQ13Nqg5pRICG0MtXWISuyjv8Q8N70xej347QnCn0d1FM8KkF01A2D00hL4xCWHG
-    // Clave publica diego stripe: pk_test_51T4NTPRo7zC5hz4eg3j9DeRgudNHYbl06btCtz6xsFlgYdCCf7EUFqTDV8kOwDh97RL2sjZRCZvlAHnzzOLX3zOM00pezZcmXy
+    try {
+      console.log("🔍 2. Llamando a los servidores de Stripe...");
+      this.stripe = await loadStripe('pk_test_51T4NTPRo7zC5hz4eg3j9DeRgudNHYbl06btCtz6xsFlgYdCCf7EUFqTDV8kOwDh97RL2sjZRCZvlAHnzzOLX3zOM00pezZcmXy');
+      
+      if (!this.stripe) {
+        console.error("❌ ERROR: loadStripe devolvió null.");
+        this.error = 'Error al cargar Stripe.';
+        this.estado = 'ERROR';
+        this.cdr.detectChanges();
+        return;
+      }
+      console.log("🔍 3. Stripe cargado con éxito. Creando formulario...");
 
-    this.stripe = await loadStripe('pk_test_51T4NTPRo7zC5hz4eg3j9DeRgudNHYbl06btCtz6xsFlgYdCCf7EUFqTDV8kOwDh97RL2sjZRCZvlAHnzzOLX3zOM00pezZcmXy');
-    if (!this.stripe) {
-      this.error = 'Error al cargar Stripe.';
-      this.estado = 'ERROR';
-      this.cdr.detectChanges();
-      return;
-    }
-    this.elements = this.stripe.elements();
-    this.cardNumberElement = this.elements.create('cardNumber', {
-      iconStyle: 'solid'
-    });
-    this.cardExpiryElement = this.elements.create('cardExpiry');
-    this.cardCvcElement = this.elements.create('cardCvc');
+      this.elements = this.stripe.elements();
+      this.cardNumberElement = this.elements.create('cardNumber', { iconStyle: 'solid' });
+      this.cardExpiryElement = this.elements.create('cardExpiry');
+      this.cardCvcElement = this.elements.create('cardCvc');
+      
+      console.log("🔍 4. Formulario creado. Lanzando petición a Spring Boot (/prepararPago)...");
 
+      this.pagosService.prepararPago({ tokenReservaEntrada: this.tokenReservaEntrada })
+        .subscribe({
+          next: (response: any) => {
+            console.log("🔍 5. ¡Spring Boot ha respondido con éxito!", response);
+            this.clientSecret = response.clientSecret || response.client_secret || (typeof response === 'string' ? response : null);
 
-    // 3. Pedir el ClientSecret al Backend
-    this.pagosService.prepararPago({ tokenReservaEntrada: this.tokenReservaEntrada })
-      .subscribe({
-        next: (response: any) => {
-          // CHIVATO PARA EL SENIOR: Vamos a ver qué devuelve exactamente el backend
-          console.log("Respuesta real del backend:", response);
+            if (!this.clientSecret) {
+              this.error = 'El servidor respondió, pero no envió el código de pago (clientSecret).';
+              this.estado = 'ERROR';
+              this.cdr.detectChanges();
+              return;
+            }
 
-          // Extraemos el token sea cual sea el formato que use Spring Boot
-          this.clientSecret = response.clientSecret || response.client_secret || (typeof response === 'string' ? response : null);
-
-          // Si seguimos sin token, cortamos el flujo y avisamos
-          if (!this.clientSecret) {
-            this.error = 'El servidor respondió, pero no envió el código de pago (clientSecret).';
+            this.estado = 'ESPERANDO_PAGO';
+            this.mensaje = 'Ingresa los datos de tu tarjeta.';
+            this.cdr.detectChanges(); 
+            
+            if (this.cardNumberElementRef?.nativeElement) this.cardNumberElement.mount(this.cardNumberElementRef.nativeElement);
+            if (this.cardExpiryElementRef?.nativeElement) this.cardExpiryElement.mount(this.cardExpiryElementRef.nativeElement);
+            if (this.cardCvcElementRef?.nativeElement) this.cardCvcElement.mount(this.cardCvcElementRef.nativeElement);
+          },
+          error: (error: any) => {
+            console.error("❌ 5. ¡Spring Boot ha devuelto un error!", error);
+            if (error?.status === 401) {
+              this.error = 'Tu sesión ha caducado antes de iniciar el pago.';
+            } else if (error?.status === 404) {
+              this.error = 'No se encontró la reserva para preparar el pago.';
+            } else {
+              this.error = error.error?.error || 'No se pudo conectar con el servidor Spring Boot.';
+            }
             this.estado = 'ERROR';
             this.cdr.detectChanges();
-            return;
           }
+        });
 
-          this.estado = 'ESPERANDO_PAGO';
-          this.mensaje = 'Ingresa los datos de tu tarjeta.';
-          this.cdr.detectChanges(); 
-          if (this.cardNumberElementRef?.nativeElement) {
-            this.cardNumberElement.mount(this.cardNumberElementRef.nativeElement);
-          }
-          if (this.cardExpiryElementRef?.nativeElement) {
-            this.cardExpiryElement.mount(this.cardExpiryElementRef.nativeElement);
-          }
-          if (this.cardCvcElementRef?.nativeElement) {
-            this.cardCvcElement.mount(this.cardCvcElementRef.nativeElement);
-          }
-        },
-        error: (error: any) => {
-          if (error?.status === 401) {
-            this.error = 'Tu sesión ha caducado antes de iniciar el pago. Vuelve a iniciar sesión y repite la reserva.';
-          } else if (error?.status === 404) {
-            this.error = 'No se encontró la reserva para preparar el pago.';
-          } else {
-            this.error = error.error?.error || 'No se pudo conectar con el servidor Spring Boot.';
-          }
-          this.estado = 'ERROR';
-          this.cdr.detectChanges();
-        }
-      });
+    } catch (err) {
+      console.error("❌ ERROR GRAVE (Crash):", err);
+      this.error = 'Fallo crítico al iniciar el pago.';
+      this.estado = 'ERROR';
+      this.cdr.detectChanges();
+    }
   }
 
   async confirmarPago() {
     if (!this.stripe || !this.cardNumberElement) return;
 
-
-    // ✓ NUEVO: Evitamos llamar a Stripe si no tenemos el secreto del backend
     if (!this.clientSecret) {
       this.error = 'Error interno: Falta el clientSecret. Revisa la consola (F12).';
       this.estado = 'ERROR';
@@ -173,6 +159,7 @@ export class PagoComponent implements OnInit {
     this.cdr.detectChanges();
 
     try {
+      // 1. Cobrar en Stripe
       const { paymentIntent, error } = await this.stripe.confirmCardPayment(
         this.clientSecret,
         { payment_method: { card: this.cardNumberElement } }
@@ -192,7 +179,7 @@ export class PagoComponent implements OnInit {
         return;
       }
 
-      // Segundo paso: avisamos al backend para que marque la entrada como VENDIDA.
+      // 2. Avisar a Spring Boot (UNA SOLA VEZ)
       try {
         const resultado = await firstValueFrom(
           this.pagosService.confirmarPago({
@@ -207,6 +194,13 @@ export class PagoComponent implements OnInit {
           this.cdr.detectChanges();
           return;
         }
+
+        // 3. Todo salió perfecto
+        this.estado = 'EXITOSO';
+        this.mensaje = '✓ ¡Entrada confirmada! Te hemos enviado un email.';
+        this.cdr.detectChanges();
+        setTimeout(() => this.router.navigate(['/espectaculos']), 3000);
+
       } catch (confirmError: any) {
         if (confirmError instanceof HttpErrorResponse) {
           if (confirmError.status === 401) {
@@ -224,52 +218,23 @@ export class PagoComponent implements OnInit {
 
         this.estado = 'ERROR';
         this.cdr.detectChanges();
-        return;
       }
-
-      this.estado = 'EXITOSO';
-      this.mensaje = '✓ ¡Pago exitoso! La entrada ya ha sido marcada como VENDIDA.';
-      this.cdr.detectChanges();
-      
-      // Notificamos al backend para que marque la entrada como vendida y mande el email
-      this.pagosService.confirmarPago({
-        paymentIntentId: paymentIntent!.id,
-        tokenUsuario: this.tokenUsuario
-      }).subscribe({
-        next: () => {
-          this.mensaje = '✓ ¡Entrada confirmada! Te hemos enviado un email.';
-          this.cdr.detectChanges();
-          setTimeout(() => this.router.navigate(['/espectaculos']), 3000);
-        },
-        error: (confirmError: any) => {
-          if (confirmError?.status === 401) {
-            this.mensaje = 'Tu sesión ha caducado antes de terminar la compra.';
-          } else if (confirmError?.status === 404) {
-            this.mensaje = 'No se encontró la reserva o el token ya no es válido.';
-          } else if (confirmError?.status === 500) {
-            this.mensaje = confirmError?.error?.error
-              || confirmError?.error?.message
-              || confirmError?.error?.detail
-              || confirmError?.message
-              || 'No se pudo enviar el email de compra.';
-          } else {
-            this.mensaje = confirmError?.error?.error
-              || confirmError?.error?.message
-              || confirmError?.error?.detail
-              || confirmError?.message
-              || 'No se pudo completar la confirmación de la compra.';
-          }
-          this.estado = 'ERROR';
-          this.cdr.detectChanges();
-          setTimeout(() => this.router.navigate(['/espectaculos']), 3000);
-        }
-      });
 
     } catch (err: any) {
       this.error = 'Error de conexión con Stripe: ' + err.message;
       this.estado = 'ERROR';
       this.cdr.detectChanges();
     }
+  }
+
+  // EL CANDADO PARA EL CÓDIGO POSTAL
+  validarCP(event: any) {
+    let valor = event.target.value.replace(/[^0-9]/g, '');
+    if (valor.length > 5) {
+      valor = valor.substring(0, 5);
+    }
+    this.codigoPostal = valor;
+    event.target.value = valor;
   }
 
   volver() {

@@ -4,12 +4,24 @@ import { FormsModule } from '@angular/forms';
 import { EspectaculosService } from './espectaculos.service';
 import { Router, RouterModule } from '@angular/router'; 
 
-
-const MAPA_TRADUCCION: Record<string, 'TEATRO' | 'CONCIERTO' | 'ESTADIO'> = {
-  '1': 'TEATRO', 'TEATRO': 'TEATRO', 'OBRA': 'TEATRO',
-  '2': 'CONCIERTO', 'CONCIERTO': 'CONCIERTO', 'GIRA': 'CONCIERTO',
-  '3': 'ESTADIO', 'ESTADIO': 'ESTADIO', 'ARENA': 'ESTADIO'
+// Simplificamos: el backend ya nos da las etiquetas correctas
+const MAPA_CATEGORIAS: Record<string, string> = {
+  'TEATRO': 'Teatro',
+  'CONCIERTO': 'Concierto',
+  'ESTADIO': 'Estadio'
 };
+
+interface EspectaculoDTO {
+  id: number;
+  artista: string;
+  fecha: string;
+  fechaAperturaTaquilla?: string;
+  escenario: {
+    nombre: string;
+    tipo: 'TEATRO' | 'CONCIERTO' | 'ESTADIO';
+  };
+}
+
 @Component({
   selector: 'app-espectaculos',
   standalone: true,
@@ -22,11 +34,9 @@ export class EspectaculosComponent implements OnInit {
   busqueda: string = '';
   buscado: boolean = false;
   
-  // Datos maestros
   escenarios: any[] = [];
   escenarioSeleccionado: any = null;
   
-  // Lógica de agrupación y navegación interna
   artistasAgrupados: any[] = []; 
   artistaSeleccionado: string | null = null;
   fechasDelArtista: any[] = [];
@@ -44,27 +54,20 @@ export class EspectaculosComponent implements OnInit {
 
   cargarEscenarios() {
     this.espectaculosService.getEscenarios().subscribe({
-      next: (response: any[]) => {
-        this.escenarios = response;
-      },
-      error: (error: any) => {
-        console.error('Error al cargar escenarios', error);
-      }
+      next: (response) => this.escenarios = response,
+      error: (err) => console.error('Error al cargar escenarios', err)
     });
   }
 
-  /**
-   * Procesa la lista plana de espectáculos y la agrupa por Artista.
-   * Mapea valores de tipo escenario con fallback robusto.
-   */
-  private procesarEspectaculos(data: any[]) {
+  private procesarEspectaculos(data: EspectaculoDTO[]) {
     const grupos = data.reduce((acc, current) => {
       if (!acc[current.artista]) {
-        const tipoMapeado = this.obtenerCategoriaEscenario(current);
+        // Usamos directamente el tipo que viene del backend
+        const categoria = MAPA_CATEGORIAS[current.escenario?.tipo] || 'Espectáculo';
         
         acc[current.artista] = {
           nombre: current.artista,
-          categoria: tipoMapeado,
+          categoria: categoria,
           totalFechas: 0,
           eventos: []
         };
@@ -74,19 +77,13 @@ export class EspectaculosComponent implements OnInit {
       return acc;
     }, {} as any);
 
-    // Ordenar cronológicamente las fechas dentro de cada artista para facilitar la selección
     Object.values(grupos).forEach((grupo: any) => {
-      grupo.eventos.sort((a: any, b: any) => {
-        const fechaA = new Date(a.fecha).getTime();
-        const fechaB = new Date(b.fecha).getTime();
-        return fechaA - fechaB;
-      });
+      grupo.eventos.sort((a: any, b: any) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime());
     });
 
     this.artistasAgrupados = Object.values(grupos);
     this.buscado = true;
 
-    // Si el usuario estaba viendo un artista y los datos se actualizan, refrescamos su lista de fechas
     if (this.artistaSeleccionado) {
       this.seleccionarArtista(this.artistaSeleccionado);
     }
@@ -94,79 +91,43 @@ export class EspectaculosComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
-  private obtenerCategoriaEscenario(espectaculo: any): string {
-    const tipoEscenario = this.normalizarTipoEscenarioParaNavegacion(espectaculo);
-    return this.mapearTipoEscenario(tipoEscenario);
-  }
-
-  
-  private mapearTipoEscenario(tipo: any): string {
-    if (!tipo) return 'Espectáculo';
-    // Ponemos la primera en mayúscula para que quede bonito (Teatro, Concierto...)
-    return tipo.charAt(0) + tipo.slice(1).toLowerCase();
-  }
-
-
   cargarTodos() {
     this.espectaculosService.buscarEspectaculos('').subscribe({
-      next: (response: any[]) => {
-        this.procesarEspectaculos(response || []);
-      },
-      error: (error: any) => {
-        console.error('Error al cargar espectaculos:', error);
-        console.error('Estado HTTP:', error.status);
-        console.error('Mensaje:', error.message);
-      }
+      next: (response) => this.procesarEspectaculos(response || []),
+      error: (err) => console.error('Error al cargar espectaculos:', err)
     });
   }
 
   buscarPorArtista() {
-    // Limpiar estado completamente para evitar residuos
-    this.escenarioSeleccionado = null;
-    this.artistaSeleccionado = null;
-    this.fechasDelArtista = [];
-    this.artistasAgrupados = [];
-    
+    this.limpiarSeleccion();
     if (!this.busqueda.trim()) {
       this.cargarTodos();
       return;
     }
-    
     this.espectaculosService.buscarEspectaculos(this.busqueda).subscribe({
-      next: (response: any[]) => {
-        this.procesarEspectaculos(response || []);
-      },
-      error: (error: any) => {
-        console.error(`Error al buscar "${this.busqueda}":`, error);
-        console.error('Estado HTTP:', error.status);
-      }
+      next: (response) => this.procesarEspectaculos(response || []),
+      error: (err) => console.error('Error en búsqueda:', err)
     });
   }
 
   buscarPorEscenario() {
-    // Limpiar estado completamente para evitar residuos
+    this.limpiarSeleccion();
     this.busqueda = '';
-    this.artistaSeleccionado = null;
-    this.fechasDelArtista = [];
-    this.artistasAgrupados = [];
-    
     if (!this.escenarioSeleccionado) {
       this.cargarTodos();
       return;
     }
-    
     this.espectaculosService.getEspectaculos(this.escenarioSeleccionado).subscribe({
-      next: (response: any[]) => {
-        this.procesarEspectaculos(response || []);
-      },
-      error: (error: any) => {
-        console.error('Error al buscar por escenario:', error);
-        console.error('Estado HTTP:', error.status);
-      }
+      next: (response) => this.procesarEspectaculos(response || []),
+      error: (err) => console.error('Error por escenario:', err)
     });
   }
 
-  // --- NAVEGACIÓN INTERNA ---
+  private limpiarSeleccion() {
+    this.artistaSeleccionado = null;
+    this.fechasDelArtista = [];
+    this.artistasAgrupados = [];
+  }
 
   seleccionarArtista(nombre: string) {
     this.artistaSeleccionado = nombre;
@@ -181,31 +142,18 @@ export class EspectaculosComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
-  // --- REDIRECCIONES ---
-
-  irAComprar(espectaculo: any) {
-    const tipoEscenario = this.normalizarTipoEscenarioParaNavegacion(espectaculo);
+  irAComprar(espectaculo: EspectaculoDTO) {
+    // Ya no necesitamos una función compleja, el dato está en escenario.tipo
     this.router.navigate(['/comprar'], {
       queryParams: {
         idEspectaculo: espectaculo.id,
         artista: espectaculo.artista,
-        tipoEscenario,
+        tipoEscenario: espectaculo.escenario?.tipo
       }
     });
   }
 
-  private normalizarTipoEscenarioParaNavegacion(espectaculo: any): 'TEATRO' | 'CONCIERTO' | 'ESTADIO' | null {
-    // Sacamos el valor venga de donde venga
-    const tipoRaw = espectaculo?.escenario?.tipo ?? espectaculo?.tipoEscenario ?? espectaculo?.escenarioTipo;
-    if (!tipoRaw) return null;
-
-    const valorKey = `${tipoRaw}`.trim().toUpperCase();
-    
-    // Si está en nuestro mapa, lo devolvemos. Si no, null.
-    return MAPA_TRADUCCION[valorKey] || null;
-  }
-
-  irACola(espectaculo: any) {
+  irACola(espectaculo: EspectaculoDTO) {
     this.router.navigate(['/cola'], {
       queryParams: {
         espectaculoId: espectaculo.id,
@@ -215,7 +163,6 @@ export class EspectaculosComponent implements OnInit {
   }
 
   estaLogueado(): boolean {
-    if (typeof window === 'undefined') return false;
-    return !!localStorage.getItem('tokenUsuario');
+    return typeof window !== 'undefined' && !!localStorage.getItem('tokenUsuario');
   }
 }

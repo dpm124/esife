@@ -13,25 +13,6 @@
       <p *ngIf="vistaSeleccionada === 'ZONA'">Selecciona una zona</p>
     </div>
 
-    <div class="selector-vista" *ngIf="tieneAmbasVistas">
-      <button
-        class="vista-btn"
-        [class.activa]="vistaSeleccionada === 'ZONA'"
-        (click)="mostrarVista('ZONA')"
-        type="button"
-      >
-        Vista zonas
-      </button>
-      <button
-        class="vista-btn"
-        [class.activa]="vistaSeleccionada === 'BUTACA'"
-        (click)="mostrarVista('BUTACA')"
-        type="button"
-      >
-        Vista precisa
-      </button>
-    </div>
-
     <div *ngIf="mensaje" class="mensaje">{{ mensaje }}</div>
     
     <div *ngIf="entradaSeleccionada" class="boton-compra">
@@ -41,6 +22,7 @@
     <ng-container *ngIf="vistaSeleccionada === 'ZONA'; else vistaPrecisa">
       <div *ngIf="zonasAgrupadas.length > 0; else sinEntradasVista">
         <section class="grupo-zona" *ngFor="let grupo of zonasAgrupadas">
+          
           <div class="grupo-zona-header">
             <div>
               <p class="grupo-kicker">Zona</p>
@@ -61,13 +43,16 @@
               <div class="tarjeta-visual">
                 <span class="tarjeta-dato">{{ etiquetaTarjeta(entrada) }}</span>
                 <span class="tarjeta-precio">{{ (entrada.precio / 100).toFixed(2) }} €</span>
-                <span class="entrada-estado estado-destacado" [class.disponible]="entrada.estado === 'DISPONIBLE'" [class.reservada]="entrada.estado !== 'DISPONIBLE'">
+                <span class="entrada-estado estado-destacado" 
+                      [class.disponible]="entrada.estado === 'DISPONIBLE'" 
+                      [class.reservada]="entrada.estado !== 'DISPONIBLE'">
                   {{ entrada.estado }}
                 </span>
               </div>
               <span class="tarjeta-accion">{{ estaSeleccionada(entrada) ? 'Deseleccionar' : 'Seleccionar' }}</span>
             </button>
           </div>
+
         </section>
       </div>
     </ng-container>
@@ -88,16 +73,13 @@
             ESCENARIO
           </div>
 
-          <!-- Contenedor general de las filas -->
           <div class="filas-container">
             <div class="fila-wrapper" *ngFor="let fila of planta.filas">
               
-              <!-- Indicador lateral de Fila -->
               <div class="fila-indicador">
                 Fila {{ fila.fila }}
               </div>
               
-              <!-- Scroll horizontal para las butacas de esta fila -->
               <div class="butacas-scroll">
                 <button
                   type="button"
@@ -110,7 +92,6 @@
                   (click)="seleccionar(entrada)"
                   title="{{ etiquetaTarjeta(entrada) }}"
                 >
-                  <!-- Info minimalista -->
                   <span class="butaca-num">B-{{ obtenerNumeroButaca(entrada) || filaEntrada(entrada) }}</span>
                   <span class="butaca-precio">{{ (entrada.precio / 100).toFixed(2) }} €</span>
                   <span *ngIf="entrada.estado === 'DISPONIBLE'" class="butaca-estado">Disponible</span>
@@ -131,5 +112,4 @@
     <p *ngIf="entradas.length === 0" class="no-data">No hay entradas disponibles.</p>
 
   </div>
-
 </div>

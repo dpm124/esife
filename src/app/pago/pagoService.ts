@@ -8,10 +8,6 @@ import { Observable } from 'rxjs';
 export class PagosService {
   constructor(private http: HttpClient) {}
 
-  validarTokenUsuario(tokenUsuario: string): Observable<string> {
-    return this.http.get(`/external/checkToken/${tokenUsuario}`, { responseType: 'text' });
-  }
-
   prepararPago(data: { tokenReservaEntrada: string }): Observable<any> {
     return this.http.post('/pagos/prepararPago', data);
   }
