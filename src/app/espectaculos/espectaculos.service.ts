@@ -20,9 +20,19 @@ export class EspectaculosService {
     return this.http.get<any[]>(`http://localhost:8080/busqueda/getEspectaculos?artista=${artista}`);
   }
 
-  // Devuelve las entradas disponibles junto con el tipo de escenario
-  getEntradasConEscenario(espectaculoId: any) {
-    return this.http.get<any>(`http://localhost:8080/busqueda/getEntradasConEscenario?espectaculoId=${espectaculoId}`);
+  // Devuelve todas las entradas de un espectáculo
+  getEntradas(espectaculoId: any) {
+    return this.http.get<any[]>(`http://localhost:8080/busqueda/getEntradas?espectaculoId=${espectaculoId}`);
+  }
+
+  // Devuelve solo las entradas disponibles de un espectáculo
+  getEntradasDisponibles(espectaculoId: any) {
+    return this.http.get<any[]>(`http://localhost:8080/busqueda/getEntradasDisponibles?espectaculoId=${espectaculoId}`);
+  }
+
+  // Devuelve estadísticas de entradas de un espectáculo
+  getEstadisticasEspectaculo(espectaculoId: any) {
+    return this.http.get<any>(`http://localhost:8080/busqueda/getNumeroEntradasDto/${espectaculoId}`);
   }
 
   reservarEntrada(entradaId: number, tokenReservaEntrada?: string) {
