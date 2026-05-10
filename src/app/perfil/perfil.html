@@ -45,3 +45,21 @@
     </div>
   </div>
 </div>
+
+<!-- Modal cancelar cuenta -->
+<div class="modal-overlay" *ngIf="mostrarModalCancelar" (click)="cerrarModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <h3>Cancelar cuenta</h3>
+    <p>Esta acción es irreversible. Introduce tu contraseña para confirmar.</p>
+    <input
+      type="password"
+      class="modal-input"
+      placeholder="Tu contraseña"
+      [(ngModel)]="passwordCancelar"
+      (keydown.enter)="confirmarCancelacion()" />
+    <div class="modal-actions">
+      <button class="btn-secondary" (click)="cerrarModal()">Cancelar</button>
+      <button class="btn-danger" (click)="confirmarCancelacion()">Confirmar</button>
+    </div>
+  </div>
+</div>
