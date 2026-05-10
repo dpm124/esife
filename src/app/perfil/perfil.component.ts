@@ -1,12 +1,13 @@
 import { Component, OnInit, Inject, PLATFORM_ID, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-perfil',
   standalone: true,
-  imports: [CommonModule, HttpClientModule],
+  imports: [CommonModule, HttpClientModule, FormsModule],
   templateUrl: './perfil.html',
   styleUrl: './perfil.css'
 })
@@ -15,6 +16,8 @@ export class PerfilComponent implements OnInit {
   tokenUsuario: string = '';
   entradas: any[] = [];
   mensaje: string = '';
+  mostrarModalCancelar: boolean = false;
+  passwordCancelar: string = '';
 
   constructor(
     private router: Router,
@@ -38,21 +41,37 @@ export class PerfilComponent implements OnInit {
   }
 
   cancelarCuenta() {
-    const password = prompt('Introduce tu contraseña para confirmar:');
-    if (!password) return;
+    this.passwordCancelar = '';
+    this.mensaje = '';
+    this.mostrarModalCancelar = true;
+  }
+
+  confirmarCancelacion() {
+    if (!this.passwordCancelar) return;
 
     this.http.post('http://localhost:8081/users/cancelar',
-      { name: this.email, pwd: password, password: password },
+      { name: this.email, pwd: this.passwordCancelar, password: this.passwordCancelar },
       { responseType: 'text' }
     ).subscribe({
       next: () => {
+        this.mostrarModalCancelar = false;
         localStorage.removeItem('tokenUsuario');
         localStorage.removeItem('emailUsuario');
-        alert('Cuenta cancelada correctamente.');
         this.router.navigate(['/espectaculos']);
       },
-      error: () => this.mensaje = 'Contraseña incorrecta o error al cancelar la cuenta.'
+      error: (err) => {
+        this.mensaje = err.status === 401
+          ? 'Contraseña incorrecta.'
+          : 'Error al cancelar la cuenta. Inténtalo de nuevo.';
+        this.mostrarModalCancelar = false;
+        this.cdr.detectChanges();
+      }
     });
+  }
+
+  cerrarModal() {
+    this.mostrarModalCancelar = false;
+    this.passwordCancelar = '';
   }
 
   cerrarSesion() {
@@ -62,9 +81,10 @@ export class PerfilComponent implements OnInit {
   }
 
   descargarEntradas() {
-      const url = `http://localhost:8080/compras/ticket/zip?emailUsuario=${this.email}`;
-      window.open(url, '_blank');
+    const url = `http://localhost:8080/compras/ticket/zip?emailUsuario=${this.email}`;
+    window.open(url, '_blank');
   }
+
   volver() {
     this.router.navigate(['/espectaculos']);
   }
