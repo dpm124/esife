@@ -83,6 +83,7 @@ export class EspectaculosComponent implements OnInit {
       queryParams: {
         idEspectaculo: espectaculo.id,
         artista: espectaculo.artista,
+        tipoEscenario: espectaculo.escenario?.tipo ?? null,
       }
     });
   }

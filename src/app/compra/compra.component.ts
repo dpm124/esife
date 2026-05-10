@@ -21,6 +21,7 @@ interface EntradaDTO {
   nombreEspectaculo?: string;
   emailComprador?: string | null;
   ubicacion: EntradaUbicacion;
+  tipoEscenario?: string;
 }
 
 interface ZonaGrupo {
@@ -48,6 +49,7 @@ export class CompraComponent implements OnInit {
   idEspectaculo: string | null = null;
   artista: string | null = null;
   tipoEscenario: 'TEATRO' | 'CONCIERTO' | 'ESTADIO' | null = null;
+  tipoEscenarioDesdeNavegacion: string | null = null;
   entradas: EntradaDTO[] = [];
   vistaSeleccionada: 'ZONA' | 'BUTACA' = 'ZONA';
   tokenReservaEntrada: string | null = null;
@@ -65,6 +67,7 @@ export class CompraComponent implements OnInit {
     this.route.queryParams.subscribe(params => {
       this.idEspectaculo = params['idEspectaculo'];
       this.artista = params['artista'];
+      this.tipoEscenarioDesdeNavegacion = params['tipoEscenario'] ?? null;
       if (params['vista'] === 'BUTACA' || params['vista'] === 'ZONA') {
         this.vistaSeleccionada = params['vista'];
       }
@@ -75,10 +78,11 @@ export class CompraComponent implements OnInit {
   }
 
   cargarEntradas() {
-    this.espectaculosService.getEntradasConEscenario(this.idEspectaculo!).subscribe({
-      next: (response: any) => {
-        this.entradas = response.entradas || [];
-        this.tipoEscenario = response?.tipoEscenario ?? null;
+    this.espectaculosService.getEntradasDisponibles(this.idEspectaculo!).subscribe({
+      next: (response: EntradaDTO[]) => {
+        this.entradas = response || [];
+        const tipoRaw = this.entradas[0]?.tipoEscenario ?? this.tipoEscenarioDesdeNavegacion;
+        this.tipoEscenario = (tipoRaw as 'TEATRO' | 'CONCIERTO' | 'ESTADIO') ?? null;
         const vistasDetectadas = {
           ZONA: this.entradas.some((entrada) => entrada.ubicacion?.tipo === 'ZONA'),
           BUTACA: this.entradas.some((entrada) => entrada.ubicacion?.tipo === 'BUTACA'),
